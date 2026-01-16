@@ -92,7 +92,7 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %{_datadir}/%{name}/src/*.h
 
 %changelog
-* Thu Jan 16 2025 Greg Beam <ki7mt@outlook.com> - 1.1.3-1
+* Thu Jan 16 2026 Greg Beam <ki7mt@outlook.com> - 1.1.3-1
 - COPR compatibility for headless GPU-less builds
 - Update nvidia-driver-cuda requirement to >= 590.48.01 for RTX 5090 Blackwell
 - Add EXTRA_NVCCFLAGS for -allow-unsupported-compiler flag
