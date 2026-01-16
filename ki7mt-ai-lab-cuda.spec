@@ -1,29 +1,31 @@
 Name:           ki7mt-ai-lab-cuda
 Version:        1.1.2
 Release:        1%{?dist}
-Summary:        CUDA bridge library for KI7MT AI Lab WSPR processing
+Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/KI7MT/ki7mt-ai-lab
+URL:            https://github.com/KI7MT/ki7mt-ai-lab-cuda
 VCS:            {{{ git_dir_vcs }}}
 Source0:        {{{ git_dir_pack }}}
 
-# Architecture-specific (contains compiled CUDA object)
+# Architecture-specific (fat binary: sm_80, sm_86, sm_89, sm_100)
 ExclusiveArch:  x86_64
 
-# Runtime requirements
-Requires:       cuda-cudart >= 12.0
-
-# Build requirements (for local builds with nvcc)
-# Note: COPR builds use pre-compiled bridge.o from source
+# Build requirements (NVIDIA CUDA Toolkit 13.1 upstream)
+BuildRequires:  cuda-nvcc-13-1
+BuildRequires:  cuda-cudart-devel-13-1
 BuildRequires:  gcc
 BuildRequires:  make
 
+# Runtime requirements
+Requires:       nvidia-driver-cuda >= 550.54.14
+Requires:       cuda-cudart-13-1 >= 13.1
+
 %description
-High-performance CUDA bridge library for GPU-accelerated WSPR (Weak Signal
-Propagation Reporter) data processing. Provides zero-copy memory management,
-async data transfers, and vectorized processing kernels optimized for
-NVIDIA RTX 5090 (Blackwell architecture, compute capability 9.0).
+Sovereign Hardware Abstraction Layer (HAL) providing high-performance CUDA
+kernels for GPU-accelerated WSPR (Weak Signal Propagation Reporter) data
+processing. Fat binary supports RTX 5090 (sm_100), RTX 40xx (sm_89),
+RTX 30xx (sm_86), and Ampere A100 (sm_80).
 
 Features:
 - Zero-copy pinned memory allocation
@@ -31,54 +33,66 @@ Features:
 - CUDA stream management for pipelined processing
 - WSPR spot validation kernel
 - Vectorized processing kernel (normalize + validate + convert)
-- Deduplication kernel
+- GPU-based deduplication kernel
 - Callsign sanitization kernel
+
+Optimized for 10+ billion row WSPR datasets with RTX 5090 (32GB VRAM).
 
 %package devel
 Summary:        Development files for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
+Requires:       cuda-cudart-devel-13-1
 
 %description devel
-Header files and development documentation for the KI7MT AI Lab CUDA bridge.
-Required for building Go applications with CGO that use the CUDA kernels.
+Header files and CUDA source code for the KI7MT AI Lab CUDA HAL.
+Required for building applications with CGO that use the CUDA kernels.
 
 %prep
 {{{ git_dir_setup_macro }}}
 
 %build
-# Pre-compiled bridge.o is included in source
-# To rebuild from source (requires CUDA toolkit):
-#   nvcc -c -o bridge.o bridge.cu -arch=sm_90 -O3
+# Set CUDA paths for NVIDIA upstream toolkit
+export CUDA_PATH=/usr/local/cuda-13.1
+export PATH=$CUDA_PATH/bin:$PATH
+
+# Build fat binary (sm_80, sm_86, sm_89, sm_100 + PTX)
+make all CUDA_PATH=$CUDA_PATH
 
 %install
-# Create directories
-install -d %{buildroot}%{_libdir}/%{name}
-install -d %{buildroot}%{_includedir}/%{name}
-install -d %{buildroot}%{_datadir}/%{name}/cuda
+# Set CUDA paths
+export CUDA_PATH=/usr/local/cuda-13.1
 
-# Install pre-compiled CUDA object
-install -m 644 src/cuda/bridge.o %{buildroot}%{_libdir}/%{name}/
+# Use Makefile install with DESTDIR
+make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 
-# Install header file
-install -m 644 src/cuda/bridge.h %{buildroot}%{_includedir}/%{name}/
+%post
+/sbin/ldconfig
 
-# Install CUDA source files (for reference/rebuilding)
-install -m 644 src/cuda/bridge.cu %{buildroot}%{_datadir}/%{name}/cuda/
-install -m 644 src/cuda/kernels.cu %{buildroot}%{_datadir}/%{name}/cuda/
+%postun
+/sbin/ldconfig
 
 %files
 %license COPYING
 %doc README
-%dir %{_libdir}/%{name}
-%{_libdir}/%{name}/bridge.o
+# Shared library with soname versioning
+%{_libdir}/lib%{name}.so.*
+# Check utility
+%{_bindir}/wspr-cuda-check
 
 %files devel
 %doc src/cuda/README.md
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/bridge.h
+# Header file (in /usr/include/ki7mt/)
+%dir %{_includedir}/ki7mt
+%{_includedir}/ki7mt/bridge.h
+# Static library
+%{_libdir}/lib%{name}.a
+# Development symlink
+%{_libdir}/lib%{name}.so
+# Source files for reference/rebuilding
 %dir %{_datadir}/%{name}
-%dir %{_datadir}/%{name}/cuda
-%{_datadir}/%{name}/cuda/*.cu
+%dir %{_datadir}/%{name}/src
+%{_datadir}/%{name}/src/*.cu
+%{_datadir}/%{name}/src/*.h
 
 %changelog
 {{{ git_dir_changelog }}}
