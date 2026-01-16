@@ -1,5 +1,5 @@
 Name:           ki7mt-ai-lab-core
-Version:        1.0.0
+Version:        1.0.2
 Release:        1%{?dist}
 Summary:        Core database schemas for the KI7MT AI Lab
 
@@ -43,5 +43,5 @@ Core database schemas for the KI7MT AI Lab WSPR/Solar project.
 %{_datadir}/ki7mt/schema/05-geo_functions.sql
 
 %changelog
-* Wed Jan 15 2025 Greg Beam <ki7mt@yahoo.com> - 1.0.0-1
+* Wed Jan 15 2025 Greg Beam <ki7mt@yahoo.com> - 1.0.1-1
 - Initial release

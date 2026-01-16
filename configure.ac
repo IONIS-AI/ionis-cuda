@@ -1,4 +1,4 @@
-AC_INIT([ki7mt-ai-lab-core], [1.0.0], [ki7mt@yahoo.com])
+AC_INIT([ki7mt-ai-lab-core], m4_esyscmd_s([cat VERSION]), [ki7mt@yahoo.com])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([src/01-wspr_schema.sql.in])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])

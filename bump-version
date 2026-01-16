@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e
+
+# Purpose: Update version across all project files from VERSION file
+# Usage: ./bump-version [new-version]
+#   If new-version is provided, updates VERSION file first
+#   Then syncs version to configure.ac and spec file
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VERSION_FILE="$SCRIPT_DIR/VERSION"
+SPEC_FILE="$SCRIPT_DIR/ki7mt-ai-lab-core.spec"
+
+if [[ ! -f "$VERSION_FILE" ]]; then
+    printf "Error: VERSION file not found\n" >&2
+    exit 1
+fi
+
+# If a new version is provided, update the VERSION file
+if [[ -n "$1" ]]; then
+    printf "%s\n" "$1" > "$VERSION_FILE"
+    printf "Updated VERSION to %s\n" "$1"
+fi
+
+VERSION=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+
+# Update spec file Version: line
+if [[ -f "$SPEC_FILE" ]]; then
+    sed -i "s/^Version:.*$/Version:        $VERSION/" "$SPEC_FILE"
+    printf "Updated %s to version %s\n" "$(basename "$SPEC_FILE")" "$VERSION"
+fi
+
+# configure.ac reads from VERSION file via m4_esyscmd_s, so no update needed
+printf "configure.ac will read version %s from VERSION file\n" "$VERSION"
+
+printf "\nVersion sync complete: %s\n" "$VERSION"

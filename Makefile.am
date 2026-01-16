@@ -1,8 +1,7 @@
 SUBDIRS = src
 
-dist_doc_DATA = AUTHORS COPYING ChangeLog NEWS README
-
-EXTRA_DIST = autogen.sh ki7mt-ai-lab-core.spec
+# Doc files handled by RPM %doc/%license directives, not Autotools
+EXTRA_DIST = autogen.sh bump-version ki7mt-ai-lab-core.spec VERSION AUTHORS COPYING ChangeLog NEWS README
 
 # clean-local: for rebuild cycles
 clean-local:
