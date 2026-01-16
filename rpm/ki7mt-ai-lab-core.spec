@@ -3,8 +3,8 @@
 # Version.......: 1.0.0
 # Purpose.......: RPM spec file for KI7MT AI Lab Core package
 # Target OS.....: Rocky Linux 9.x / RHEL 9.x (el9)
-# COPR Ready....: Yes (SCM integration compatible)
-# Build System..: Autotools (configure/make/make install)
+# Build System..: Simple file-based (no Autotools, no tarball)
+# COPR Ready....: Yes (rpkg SCM clone-based build)
 # Author........: Greg Beam, KI7MT
 # ==============================================================================
 
@@ -16,25 +16,13 @@ Summary:        Core database schemas for the KI7MT AI Lab WSPR/Solar Project
 License:        GPL-3.0-or-later
 URL:            https://github.com/KI7MT/ki7mt-ai-lab-core
 
-# COPR SCM Integration - Dynamic source tarball
-Source0:        %{name}-%{version}.tar.gz
-
 BuildArch:      noarch
 
-# Build dependencies (Rocky Linux 9 / RHEL 9)
-BuildRequires:  autoconf
-BuildRequires:  automake
-BuildRequires:  make
-BuildRequires:  sed
-BuildRequires:  coreutils
-BuildRequires:  python3 >= 3.8
-
-# Runtime dependencies - Hardened for production lab
+# Runtime dependencies
 Requires:       clickhouse-server >= 23.0
 Requires:       clickhouse-client >= 23.0
 Requires:       bash >= 4.4
 
-# Weak dependencies for optional features
 Recommends:     clickhouse-common-static
 
 %description
@@ -54,33 +42,47 @@ Utility Scripts:
   ki7mt-lab-db-init     - Database initialization script
   ki7mt-lab-env         - Environment configuration
 
-Target Hardware:
-  - AMD Ryzen 9 9950X3D (128GB RAM)
-  - Samsung 990 Pro NVMe RAID-0 (8TB)
-  - ClickHouse v23+ with LZ4 compression
-
 Installation Path:
-  Schemas: %{_datadir}/ki7mt/schema/
-  Binaries: %{_bindir}/
+  Schemas: /usr/share/ki7mt/schema/
+  Binaries: /usr/bin/
 
 # ==============================================================================
-# Prep - Extract source tarball
+# Prep - Create build directory (no tarball extraction)
 # ==============================================================================
 %prep
-%autosetup -n %{name}-%{version}
+mkdir -p %{_builddir}/%{name}-%{version}
 
 # ==============================================================================
-# Build - Autotools configure and make
+# Build - Nothing to compile
 # ==============================================================================
 %build
-%configure
-%make_build
+exit 0
 
 # ==============================================================================
-# Install - Autotools make install
+# Install - Direct file copy from repository root
 # ==============================================================================
 %install
-%make_install
+mkdir -p %{buildroot}/usr/share/ki7mt/schema/
+mkdir -p %{buildroot}/usr/bin/
+mkdir -p %{buildroot}/usr/share/doc/%{name}/
+mkdir -p %{buildroot}/usr/share/licenses/%{name}/
+
+# Install SQL schemas (copy .in files, strip .in extension)
+for f in database/clickhouse/*.sql.in; do
+    base=$(basename "$f" .sql.in)
+    cp "$f" %{buildroot}/usr/share/ki7mt/schema/${base}.sql
+done
+
+# Install utility scripts (copy .in files, strip .in extension)
+for f in src/*.in; do
+    base=$(basename "$f" .in)
+    cp "$f" %{buildroot}/usr/bin/${base}
+    chmod +x %{buildroot}/usr/bin/${base}
+done
+
+# Install documentation
+cp README.md %{buildroot}/usr/share/doc/%{name}/
+cp COPYING %{buildroot}/usr/share/licenses/%{name}/
 
 # ==============================================================================
 # Post-install script
@@ -91,27 +93,17 @@ echo "==========================================================================
 echo "  KI7MT AI Lab Core - Installation Complete"
 echo "================================================================================"
 echo ""
-echo "  SQL schemas installed to: %{_datadir}/ki7mt/schema/"
-echo "  Utility scripts installed to: %{_bindir}/"
+echo "  SQL schemas installed to: /usr/share/ki7mt/schema/"
+echo "  Utility scripts installed to: /usr/bin/"
 echo ""
 echo "  QUICK START:"
-echo "  ------------------------------------------------------------------------------"
-echo ""
 echo "  1. Ensure ClickHouse server is running:"
 echo "     $ sudo systemctl start clickhouse-server"
 echo ""
-echo "  2. Initialize the database (applies all schemas in order):"
-echo "     $ ki7mt-lab-db-init"
-echo ""
-echo "  3. Or apply schemas manually:"
-echo "     $ for sql in %{_datadir}/ki7mt/schema/*.sql; do"
+echo "  2. Apply schemas in order:"
+echo "     $ for sql in /usr/share/ki7mt/schema/*.sql; do"
 echo "         clickhouse-client < \"\$sql\""
 echo "       done"
-echo ""
-echo "  4. Verify the installation:"
-echo "     $ clickhouse-client --query=\"SHOW TABLES FROM wspr\""
-echo ""
-echo "  NOTE: Views require base tables. Apply schemas in numerical order."
 echo ""
 echo "================================================================================"
 echo ""
@@ -122,18 +114,8 @@ echo ""
 %postun
 if [ $1 -eq 0 ]; then
     echo ""
-    echo "================================================================================"
-    echo "  KI7MT AI Lab Core - Package Removed"
-    echo "================================================================================"
-    echo ""
-    echo "  NOTE: Database schemas in ClickHouse were NOT removed."
-    echo ""
-    echo "  To manually drop the database and all data:"
-    echo "    $ clickhouse-client --query=\"DROP DATABASE IF EXISTS wspr\""
-    echo ""
-    echo "  WARNING: This will permanently delete all WSPR spot data!"
-    echo ""
-    echo "================================================================================"
+    echo "  KI7MT AI Lab Core removed. Database schemas in ClickHouse NOT dropped."
+    echo "  To drop: clickhouse-client --query=\"DROP DATABASE IF EXISTS wspr\""
     echo ""
 fi
 
@@ -145,17 +127,17 @@ fi
 %doc README.md
 
 # Binary scripts
-%{_bindir}/ki7mt-lab-db-init
-%{_bindir}/ki7mt-lab-env
+/usr/bin/ki7mt-lab-db-init
+/usr/bin/ki7mt-lab-env
 
 # Schema directory and files
-%dir %{_datadir}/ki7mt
-%dir %{_datadir}/ki7mt/schema
-%{_datadir}/ki7mt/schema/01-wspr_schema.sql
-%{_datadir}/ki7mt/schema/02-solar_indices.sql
-%{_datadir}/ki7mt/schema/03-solar_silver.sql
-%{_datadir}/ki7mt/schema/04-data_mgmt.sql
-%{_datadir}/ki7mt/schema/05-geo_functions.sql
+%dir /usr/share/ki7mt
+%dir /usr/share/ki7mt/schema
+/usr/share/ki7mt/schema/01-wspr_schema.sql
+/usr/share/ki7mt/schema/02-solar_indices.sql
+/usr/share/ki7mt/schema/03-solar_silver.sql
+/usr/share/ki7mt/schema/04-data_mgmt.sql
+/usr/share/ki7mt/schema/05-geo_functions.sql
 
 # ==============================================================================
 # Changelog
@@ -163,12 +145,10 @@ fi
 %changelog
 * Wed Jan 15 2025 Greg Beam <ki7mt@yahoo.com> - 1.0.0-1
 - Initial RPM release for Rocky Linux 9 (el9)
-- COPR SCM integration ready
-- Autotools build system (configure/make/make install)
+- Simple file-based build (no Autotools)
+- COPR rpkg SCM integration ready
 - 15-column WSPR schema with LowCardinality optimizations
 - Solar indices schema for propagation correlation
 - Geo functions placeholder for Maidenhead UDFs
 - ki7mt-lab-db-init utility for database initialization
 - ki7mt-lab-env utility for environment configuration
-- Hardened dependencies (clickhouse-client required)
-- FHS-compliant installation to %{_datadir}/ki7mt/schema/
