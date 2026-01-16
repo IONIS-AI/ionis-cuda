@@ -49,7 +49,9 @@ GENCODE_FLAGS := \
     -gencode arch=compute_100,code=compute_100
 
 # Optimization flags
-NVCC_FLAGS  := -O3 --use_fast_math -Xcompiler -fPIC $(GENCODE_FLAGS)
+# EXTRA_NVCCFLAGS can be set externally (e.g., -allow-unsupported-compiler for COPR)
+EXTRA_NVCCFLAGS ?=
+NVCC_FLAGS  := -O3 --use_fast_math -Xcompiler -fPIC $(GENCODE_FLAGS) $(EXTRA_NVCCFLAGS)
 NVCC_SHARED := -shared -Xcompiler -fPIC
 
 # Host compiler flags
@@ -76,6 +78,7 @@ CHECK_SRC   := src/wspr-cuda-check.c
 # =============================================================================
 STATIC_LIB  := $(LIBDIR_BUILD)/lib$(NAME).a
 SHARED_LIB  := $(LIBDIR_BUILD)/lib$(NAME).so.$(VERSION)
+SONAME_LINK := $(LIBDIR_BUILD)/lib$(NAME).so.$(SOVERSION)
 SHARED_LINK := $(LIBDIR_BUILD)/lib$(NAME).so
 CHECK_BIN   := $(BINDIR_BUILD)/wspr-cuda-check
 CUDA_OBJ    := $(OBJDIR)/bridge.o
@@ -109,9 +112,10 @@ help:
 	@printf "  check-cuda  Verify CUDA toolkit installation\n"
 	@printf "\n"
 	@printf "Variables:\n"
-	@printf "  PREFIX      Installation prefix (default: /usr)\n"
-	@printf "  DESTDIR     Staging directory for packaging\n"
-	@printf "  CUDA_PATH   CUDA toolkit path (default: /usr/local/cuda)\n"
+	@printf "  PREFIX           Installation prefix (default: /usr)\n"
+	@printf "  DESTDIR          Staging directory for packaging\n"
+	@printf "  CUDA_PATH        CUDA toolkit path (default: /usr/local/cuda)\n"
+	@printf "  EXTRA_NVCCFLAGS  Additional nvcc flags (e.g., -allow-unsupported-compiler)\n"
 	@printf "\n"
 	@printf "Examples:\n"
 	@printf "  make all                      # Build everything\n"
@@ -172,13 +176,17 @@ $(STATIC_LIB): $(CUDA_OBJ) | $(LIBDIR_BUILD)
 	ar rcs $@ $<
 	@printf "  Output: $@\n"
 
-# Build shared library
+# Build shared library with proper SONAME
 $(SHARED_LIB): $(CUDA_SRCS) $(CUDA_HDRS) | $(LIBDIR_BUILD)
 	@printf "Creating shared library...\n"
-	$(NVCC) $(NVCC_FLAGS) $(NVCC_SHARED) -o $@ $(CUDA_SRCS) -L$(CUDA_LIB) -lcudart
-	ln -sf lib$(NAME).so.$(VERSION) $(SHARED_LINK)
+	$(NVCC) $(NVCC_FLAGS) $(NVCC_SHARED) \
+		-Xlinker -soname,lib$(NAME).so.$(SOVERSION) \
+		-o $@ $(CUDA_SRCS) -L$(CUDA_LIB) -lcudart
+	ln -sf lib$(NAME).so.$(VERSION) $(LIBDIR_BUILD)/lib$(NAME).so.$(SOVERSION)
+	ln -sf lib$(NAME).so.$(SOVERSION) $(SHARED_LINK)
 	@printf "  Output: $@\n"
-	@printf "  Symlink: $(SHARED_LINK)\n"
+	@printf "  Soname: lib$(NAME).so.$(SOVERSION)\n"
+	@printf "  Devlink: $(SHARED_LINK)\n"
 
 # Build check utility
 $(CHECK_BIN): $(CHECK_SRC) $(SHARED_LIB) | $(BINDIR_BUILD)

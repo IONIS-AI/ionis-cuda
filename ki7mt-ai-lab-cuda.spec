@@ -17,9 +17,9 @@ BuildRequires:  cuda-cudart-devel-13-1
 BuildRequires:  gcc
 BuildRequires:  make
 
-# Runtime requirements
-Requires:       nvidia-driver-cuda >= 550.54.14
-Requires:       cuda-cudart-13-1 >= 13.1
+# Runtime requirements (RTX 5090 Blackwell requires driver >= 590.48.01)
+Requires:       nvidia-driver-cuda >= 590.48.01
+Requires:       cuda-cudart-13-1 >= 13.1.0
 
 %description
 Sovereign Hardware Abstraction Layer (HAL) providing high-performance CUDA
@@ -56,7 +56,8 @@ export CUDA_PATH=/usr/local/cuda-13.1
 export PATH=$CUDA_PATH/bin:$PATH
 
 # Build fat binary (sm_80, sm_86, sm_89, sm_100 + PTX)
-make all CUDA_PATH=$CUDA_PATH
+# EXTRA_NVCCFLAGS allows COPR builders to handle GCC version mismatches
+make all CUDA_PATH=$CUDA_PATH EXTRA_NVCCFLAGS="-allow-unsupported-compiler"
 
 %install
 # Set CUDA paths
@@ -65,11 +66,8 @@ export CUDA_PATH=/usr/local/cuda-13.1
 # Use Makefile install with DESTDIR
 make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 
-%post
-/sbin/ldconfig
-
-%postun
-/sbin/ldconfig
+# Modern EL9 standard for ldconfig scriptlets
+%ldconfig_scriptlets
 
 %files
 %license COPYING
