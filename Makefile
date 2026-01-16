@@ -1,30 +1,37 @@
-# Makefile for ki7mt-ai-lab-core
+# Makefile for ki7mt-ai-lab-cuda
 #
 # Local development only - does not affect COPR/rpkg builds
 #
 # Usage:
 #   make              # Show help
-#   make build        # Process templates into build/
+#   make build        # Compile CUDA bridge (requires nvcc)
 #   make install      # Install to system (requires sudo)
 #   make test         # Run verification tests
 #   make distclean    # Remove all build artifacts
 
 SHELL := /bin/bash
-.PHONY: help build install uninstall test distclean
+.PHONY: help build install uninstall test distclean check-cuda
 
 # Package metadata
-NAME     := ki7mt-ai-lab-core
+NAME     := ki7mt-ai-lab-cuda
 VERSION  := $(shell cat VERSION 2>/dev/null || echo "0.0.0")
 PREFIX   := /usr
-BINDIR   := $(PREFIX)/bin
-DATADIR  := $(PREFIX)/share/$(NAME)/ddl
+LIBDIR   := $(PREFIX)/lib64/$(NAME)
+INCDIR   := $(PREFIX)/include/$(NAME)
+DATADIR  := $(PREFIX)/share/$(NAME)/cuda
+
+# CUDA settings
+NVCC     := nvcc
+CUDA_ARCH := sm_90
+NVCC_FLAGS := -c -O3 -arch=$(CUDA_ARCH)
 
 # Build directory
 BUILDDIR := build
 
 # Source files
-SCRIPTS  := src/ki7mt-lab-db-init src/ki7mt-lab-env
-SCHEMAS  := $(wildcard src/*.sql)
+CUDA_SRC := src/cuda/bridge.cu
+CUDA_HDR := src/cuda/bridge.h
+CUDA_OBJ := src/cuda/bridge.o
 
 # Default target
 .DEFAULT_GOAL := help
@@ -37,63 +44,79 @@ help:
 	@printf "Usage: make [target]\n"
 	@printf "\n"
 	@printf "Targets:\n"
-	@printf "  help       Show this help message\n"
-	@printf "  build      Process templates into build/ directory\n"
-	@printf "  install    Install to system (PREFIX=$(PREFIX), requires sudo)\n"
-	@printf "  uninstall  Remove installed files (requires sudo)\n"
-	@printf "  test       Run verification tests (requires ClickHouse)\n"
-	@printf "  distclean  Remove all build artifacts\n"
+	@printf "  help        Show this help message\n"
+	@printf "  build       Compile CUDA bridge (requires nvcc)\n"
+	@printf "  install     Install to system (PREFIX=$(PREFIX), requires sudo)\n"
+	@printf "  uninstall   Remove installed files (requires sudo)\n"
+	@printf "  test        Run verification tests\n"
+	@printf "  distclean   Remove all build artifacts\n"
+	@printf "  check-cuda  Verify CUDA toolkit installation\n"
 	@printf "\n"
 	@printf "Variables:\n"
-	@printf "  PREFIX     Installation prefix (default: /usr)\n"
-	@printf "  DESTDIR    Staging directory for packaging\n"
+	@printf "  PREFIX      Installation prefix (default: /usr)\n"
+	@printf "  DESTDIR     Staging directory for packaging\n"
+	@printf "  CUDA_ARCH   CUDA architecture (default: sm_90)\n"
 	@printf "\n"
 	@printf "Examples:\n"
-	@printf "  make build                    # Build templates\n"
+	@printf "  make check-cuda               # Verify CUDA installation\n"
+	@printf "  make build                    # Compile bridge.o\n"
 	@printf "  sudo make install             # Install to /usr\n"
 	@printf "  make PREFIX=/usr/local install # Install to /usr/local\n"
 	@printf "  DESTDIR=/tmp/stage make install # Stage for packaging\n"
+	@printf "  make CUDA_ARCH=sm_86 build    # Build for RTX 3090\n"
+
+check-cuda:
+	@printf "Checking CUDA installation...\n"
+	@command -v $(NVCC) >/dev/null 2>&1 || { \
+		printf "ERROR: nvcc not found in PATH\n"; \
+		printf "Install CUDA toolkit or add to PATH\n"; \
+		exit 1; \
+	}
+	@printf "  nvcc:     $(shell $(NVCC) --version | grep release)\n"
+	@printf "  arch:     $(CUDA_ARCH)\n"
+	@printf "CUDA check passed.\n"
 
 build: $(BUILDDIR)/.built
 
-$(BUILDDIR)/.built: $(SCRIPTS) $(SCHEMAS) VERSION
+$(BUILDDIR)/.built: $(CUDA_SRC) $(CUDA_HDR) VERSION
 	@printf "Building $(NAME) v$(VERSION)...\n"
-	@mkdir -p $(BUILDDIR)/bin $(BUILDDIR)/ddl
-	@# Process scripts
-	@for script in $(SCRIPTS); do \
-		name=$$(basename $$script); \
-		sed -e 's|@PROGRAM@|$(NAME)|g' \
-		    -e 's|@VERSION@|$(VERSION)|g' \
-		    $$script > $(BUILDDIR)/bin/$$name; \
-		chmod 755 $(BUILDDIR)/bin/$$name; \
-		printf "  %-30s -> build/bin/%s\n" "$$script" "$$name"; \
-	done
-	@# Process SQL schemas
-	@for sql in $(SCHEMAS); do \
-		name=$$(basename $$sql); \
-		sed -e 's|@PROGRAM@|$(NAME)|g' \
-		    -e 's|@VERSION@|$(VERSION)|g' \
-		    -e 's|@COPYRIGHT@|GPL-3.0-or-later|g' \
-		    $$sql > $(BUILDDIR)/ddl/$$name; \
-		printf "  %-30s -> build/ddl/%s\n" "$$sql" "$$name"; \
-	done
+	@mkdir -p $(BUILDDIR)/lib $(BUILDDIR)/include $(BUILDDIR)/cuda
+	@# Check for nvcc
+	@command -v $(NVCC) >/dev/null 2>&1 || { \
+		printf "WARNING: nvcc not found, using pre-compiled bridge.o\n"; \
+		cp $(CUDA_OBJ) $(BUILDDIR)/lib/bridge.o; \
+	}
+	@# Compile CUDA if nvcc available
+	@if command -v $(NVCC) >/dev/null 2>&1; then \
+		printf "  Compiling bridge.cu -> bridge.o ($(CUDA_ARCH))...\n"; \
+		$(NVCC) $(NVCC_FLAGS) -o $(BUILDDIR)/lib/bridge.o $(CUDA_SRC); \
+	fi
+	@# Copy header
+	@cp $(CUDA_HDR) $(BUILDDIR)/include/
+	@printf "  %-30s -> build/include/bridge.h\n" "$(CUDA_HDR)"
+	@# Copy sources for reference
+	@cp src/cuda/*.cu $(BUILDDIR)/cuda/
+	@printf "  %-30s -> build/cuda/\n" "src/cuda/*.cu"
 	@touch $(BUILDDIR)/.built
 	@printf "Build complete.\n"
 
 install: build
 	@printf "Installing to $(DESTDIR)$(PREFIX)...\n"
-	install -d $(DESTDIR)$(BINDIR)
+	install -d $(DESTDIR)$(LIBDIR)
+	install -d $(DESTDIR)$(INCDIR)
 	install -d $(DESTDIR)$(DATADIR)
-	install -m 755 $(BUILDDIR)/bin/* $(DESTDIR)$(BINDIR)/
-	install -m 644 $(BUILDDIR)/ddl/*.sql $(DESTDIR)$(DATADIR)/
+	install -m 644 $(BUILDDIR)/lib/bridge.o $(DESTDIR)$(LIBDIR)/
+	install -m 644 $(BUILDDIR)/include/bridge.h $(DESTDIR)$(INCDIR)/
+	install -m 644 $(BUILDDIR)/cuda/*.cu $(DESTDIR)$(DATADIR)/
 	@printf "Installed:\n"
-	@printf "  Scripts: $(DESTDIR)$(BINDIR)/ki7mt-lab-*\n"
-	@printf "  Schemas: $(DESTDIR)$(DATADIR)/*.sql\n"
+	@printf "  Library:  $(DESTDIR)$(LIBDIR)/bridge.o\n"
+	@printf "  Header:   $(DESTDIR)$(INCDIR)/bridge.h\n"
+	@printf "  Sources:  $(DESTDIR)$(DATADIR)/*.cu\n"
 
 uninstall:
 	@printf "Uninstalling from $(DESTDIR)$(PREFIX)...\n"
-	rm -f $(DESTDIR)$(BINDIR)/ki7mt-lab-db-init
-	rm -f $(DESTDIR)$(BINDIR)/ki7mt-lab-env
+	rm -rf $(DESTDIR)$(LIBDIR)
+	rm -rf $(DESTDIR)$(INCDIR)
 	rm -rf $(DESTDIR)$(PREFIX)/share/$(NAME)
 	@printf "Uninstall complete.\n"
 
@@ -102,35 +125,26 @@ test: build
 	@printf "\n"
 	@# Test 1: Check build outputs exist
 	@printf "[TEST] Build outputs exist... "
-	@test -f $(BUILDDIR)/bin/ki7mt-lab-db-init && \
-	 test -f $(BUILDDIR)/bin/ki7mt-lab-env && \
-	 test -f $(BUILDDIR)/ddl/01-wspr_schema.sql && \
+	@test -f $(BUILDDIR)/lib/bridge.o && \
+	 test -f $(BUILDDIR)/include/bridge.h && \
 	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
-	@# Test 2: Check version substitution
-	@printf "[TEST] Version substitution... "
-	@grep -q 'VERSION="$(VERSION)"' $(BUILDDIR)/bin/ki7mt-lab-db-init && \
+	@# Test 2: Check object file is valid ELF
+	@printf "[TEST] bridge.o is valid object... "
+	@file $(BUILDDIR)/lib/bridge.o | grep -q "ELF\|relocatable" && \
 	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
-	@# Test 3: Check program name substitution
-	@printf "[TEST] Program name substitution... "
-	@grep -q 'PROGRAM="$(NAME)"' $(BUILDDIR)/bin/ki7mt-lab-db-init && \
+	@# Test 3: Check header file has expected content
+	@printf "[TEST] Header defines WsprSpotC struct... "
+	@grep -q "typedef struct.*WsprSpotC" $(BUILDDIR)/include/bridge.h && \
 	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
-	@# Test 4: Check DDL path substitution
-	@printf "[TEST] DDL path in scripts... "
-	@grep -q '/usr/share/$(NAME)/ddl' $(BUILDDIR)/bin/ki7mt-lab-db-init && \
+	@# Test 4: Check header has CUDA API functions
+	@printf "[TEST] Header declares CUDA functions... "
+	@grep -q "cuda_host_alloc_pinned" $(BUILDDIR)/include/bridge.h && \
+	 grep -q "cuda_kernel_validate_spots" $(BUILDDIR)/include/bridge.h && \
 	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
-	@# Test 5: Check scripts are executable
-	@printf "[TEST] Scripts are executable... "
-	@test -x $(BUILDDIR)/bin/ki7mt-lab-db-init && \
-	 test -x $(BUILDDIR)/bin/ki7mt-lab-env && \
-	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
-	@# Test 6: Check SQL files have no unsubstituted placeholders
-	@printf "[TEST] No unsubstituted placeholders in SQL... "
-	@! grep -q '@[A-Z_]*@' $(BUILDDIR)/ddl/*.sql && \
-	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
-	@# Test 7: Syntax check scripts (bash -n)
-	@printf "[TEST] Script syntax valid... "
-	@bash -n $(BUILDDIR)/bin/ki7mt-lab-db-init && \
-	 bash -n $(BUILDDIR)/bin/ki7mt-lab-env && \
+	@# Test 5: Check source files copied
+	@printf "[TEST] CUDA source files copied... "
+	@test -f $(BUILDDIR)/cuda/bridge.cu && \
+	 test -f $(BUILDDIR)/cuda/kernels.cu && \
 	 printf "PASS\n" || { printf "FAIL\n"; exit 1; }
 	@printf "\nAll tests passed.\n"
 

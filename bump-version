@@ -13,7 +13,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VERSION_FILE="$SCRIPT_DIR/VERSION"
-SPEC_FILE="$SCRIPT_DIR/ki7mt-ai-lab-core.spec"
+SPEC_FILE="$SCRIPT_DIR/ki7mt-ai-lab-cuda.spec"
 
 if [[ -z "$1" ]]; then
     printf "Usage: %s <new-version>\n" "$(basename "$0")"
