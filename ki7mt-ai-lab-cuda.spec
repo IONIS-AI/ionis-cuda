@@ -1,3 +1,6 @@
+# Disable debug package generation (CUDA binaries don't have standard debug info)
+%global debug_package %{nil}
+
 Name:           ki7mt-ai-lab-cuda
 Version:        1.1.4
 Release:        1%{?dist}
