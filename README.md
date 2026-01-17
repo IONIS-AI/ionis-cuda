@@ -6,27 +6,28 @@
 [![COPR](https://img.shields.io/badge/COPR-ki7mt%2Fai--lab-blue)](https://copr.fedorainfracloud.org/coprs/ki7mt/ai-lab/)
 [![Platform: EL9](https://img.shields.io/badge/Platform-EL9-green.svg)](https://rockylinux.org/)
 
+
 ## Package Contents
 
 This package installs:
 
 | File | Path | Description |
 |------|------|-------------|
-| `ki7mt-lab-db-init` | `/usr/bin/` | Database initialization script |
-| `ki7mt-lab-env` | `/usr/bin/` | Environment variables setup |
-| `*.sql` (5 files) | `/usr/share/ki7mt-ai-lab-core/ddl/` | ClickHouse DDL schemas |
+| ki7mt-lab-db-init | /usr/bin/ | Database initialization script |
+| ki7mt-lab-env | /usr/bin/ | Environment variables setup |
+| *.sql (5 files) | /usr/share/ki7mt-ai-lab-core/ddl/ | ClickHouse DDL schemas |
+
 
 ### Database Schemas
 
-| Schema | Table/View | Purpose |
-|--------|------------|---------|
-| `01-wspr_schema.sql` | `wspr.spots_raw` | 15-column WSPR spot data (MergeTree, partitioned by month) |
-| `02-solar_indices.sql` | `wspr.solar_indices` | Solar flux indices from NOAA |
-| `03-solar_silver.sql` | `wspr.solar_silver` | Curated daily solar aggregates |
-| `04-data_mgmt.sql` | `wspr.data_mgmt` | Pipeline configuration key-value store |
-| `05-geo_functions.sql` | (functions) | Geographic calculation UDFs |
+| Schema  | Table/View  | Purpose |
+|:--------|:------------|:---------|
+| 01-wspr_schema.sql | wspr.spots_raw | 15-column WSPR spot data (MergeTree, partitioned by month) |
+| 02-solar_indices.sql | wspr.solar_indices | Solar flux indices from NOAA |
+| 03-solar_silver.sql | wspr.solar_silver | Curated daily solar aggregates |
+| 04-data_mgmt.sql | wspr.data_mgmt | Pipeline configuration key-value store |
+| 05-geo_functions.sql | (functions) | Geographic calculation UDFs |
 
----
 
 ## Installation
 
@@ -40,6 +41,7 @@ sudo dnf copr enable ki7mt/ai-lab
 sudo dnf install ki7mt-ai-lab-core
 ```
 
+
 ### From Source (rpkg)
 
 ```bash
@@ -49,7 +51,6 @@ rpkg local
 sudo dnf install ./noarch/*.rpm
 ```
 
----
 
 ## Usage
 
@@ -65,6 +66,7 @@ sudo systemctl enable --now clickhouse-server
 # Verify it's running
 clickhouse-client --query="SELECT version()"
 ```
+
 
 ### 2. Initialize the Database
 
@@ -102,6 +104,7 @@ ki7mt-lab-db-init
 [DONE] Database setup completed successfully.
 ```
 
+
 ### 3. Load Environment Variables
 
 ```bash
@@ -127,7 +130,6 @@ export CLICKHOUSE_DATA_DIR=/var/lib/clickhouse
 source /usr/bin/ki7mt-lab-env
 ```
 
----
 
 ## Testing Locally
 
@@ -141,6 +143,7 @@ rpm -q ki7mt-ai-lab-core
 ls -la /usr/bin/ki7mt-lab-*
 ls -la /usr/share/ki7mt-ai-lab-core/ddl/
 ```
+
 
 ### Verify Database
 
@@ -158,6 +161,7 @@ clickhouse-client --query="DESCRIBE TABLE wspr.spots_raw"
 clickhouse-client --query="SELECT count() FROM wspr.spots_raw"
 ```
 
+
 ### Test Idempotency
 
 The init script is idempotent - running it multiple times is safe:
@@ -172,6 +176,7 @@ ki7mt-lab-db-init
 #     Table 'spots_raw': EXISTS (engine=MergeTree, cols=15, rows=0)
 ```
 
+
 ### Test Environment Script
 
 ```bash
@@ -183,6 +188,7 @@ echo "WSPR Data: $WSPR_DATA_DIR"
 # Verify DDL files are accessible
 ls $DDL_PATH
 ```
+
 
 ### Test with Sample Data
 
@@ -217,7 +223,6 @@ WHERE id = 1"
 clickhouse-client --query="ALTER TABLE wspr.spots_raw DELETE WHERE id = 1"
 ```
 
----
 
 ## Uninstall
 
@@ -243,6 +248,7 @@ clickhouse-client --query="DROP DATABASE IF EXISTS wspr"
 git push && git push --tags
 ```
 
+
 ### Build Locally
 
 ```bash
@@ -251,15 +257,16 @@ rpkg lint                     # Check spec file
 rpkg srpm                     # Create source RPM
 ```
 
----
 
 ## License
 
 GPL-3.0-or-later - See [COPYING](COPYING)
 
+
 ## Author
 
 Greg Beam, KI7MT
+
 
 ## Links
 
