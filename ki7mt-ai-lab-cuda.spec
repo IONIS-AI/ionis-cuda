@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ki7mt-ai-lab-cuda
-Version:        1.1.5
+Version:        1.1.6
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
 
@@ -96,6 +96,13 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %{_datadir}/%{name}/src/*.h
 
 %changelog
+* Fri Jan 17 2026 Greg Beam <ki7mt@outlook.com> - 1.1.6-1
+- Add spec changelog for v1.1.5 and v1.1.6
+
+* Fri Jan 17 2026 Greg Beam <ki7mt@outlook.com> - 1.1.5-1
+- Add --help and --version flags to wspr-cuda-check
+- Update bump-version to track source file VERSION define
+
 * Fri Jan 16 2026 Greg Beam <ki7mt@outlook.com> - 1.1.4-1
 - Hardcode Source0 URL to avoid rpkg naming conflicts
 
