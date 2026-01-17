@@ -4,7 +4,7 @@
  * Purpose: Verify CUDA toolkit handshake and GPU compute capability
  * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA HAL)
  *
- * Usage: wspr-cuda-check [--verbose]
+ * Usage: wspr-cuda-check [--verbose] [--help] [--version]
  *
  * Exit codes:
  *   0 - Success (GPU detected and kernel executed)
@@ -20,7 +20,7 @@
 
 /* Version info (substituted by build) */
 #ifndef VERSION
-#define VERSION "1.1.2"
+#define VERSION "1.1.5"
 #endif
 
 /* ANSI color codes */
@@ -68,17 +68,21 @@ int main(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             printf("wspr-cuda-check v%s - CUDA HAL Self-Test Utility\n", VERSION);
             printf("\n");
-            printf("Usage: %s [--verbose]\n", argv[0]);
+            printf("Usage: %s [OPTIONS]\n", argv[0]);
             printf("\n");
             printf("Options:\n");
             printf("  -v, --verbose  Show detailed GPU information\n");
             printf("  -h, --help     Show this help message\n");
+            printf("  -V, --version  Show version information\n");
             printf("\n");
             printf("Exit codes:\n");
             printf("  0 - Success (GPU detected and kernel executed)\n");
             printf("  1 - No CUDA-capable GPU detected\n");
             printf("  2 - Kernel execution failed\n");
             printf("  3 - Library initialization failed\n");
+            return 0;
+        } else if (strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-V") == 0) {
+            printf("wspr-cuda-check v%s\n", VERSION);
             return 0;
         }
     }
