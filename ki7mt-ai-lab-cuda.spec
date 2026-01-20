@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ki7mt-ai-lab-cuda
-Version:        1.1.7
+Version:        2.0.1
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
 
@@ -100,6 +100,11 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Mon Jan 20 2026 Greg Beam <ki7mt@outlook.com> - 2.0.1-1
+- Add sm_120 (Blackwell refresh) to fat binary targets
+- Add bulk_kernels.cu: SoA-based bulk processing kernels for CGO
+- Sync version with ki7mt-ai-lab-core v2.0.1
+
 * Fri Jan 17 2026 Greg Beam <ki7mt@outlook.com> - 1.1.7-1
 - Add wspr_structs.h: RTX 5090-optimized 128-byte struct synchronized with ClickHouse
 - Add WSPRSpotCH: 99-byte ClickHouse RowBinary format struct

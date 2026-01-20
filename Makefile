@@ -40,13 +40,14 @@ CUDA_LIB    := $(CUDA_PATH)/lib64
 # =============================================================================
 # Compiler Flags
 # =============================================================================
-# Fat Binary: sm_80 (Ampere A100), sm_86 (RTX 30xx), sm_89 (RTX 40xx), sm_100 (RTX 50xx)
+# Fat Binary: sm_80 (Ampere A100), sm_86 (RTX 30xx), sm_89 (RTX 40xx), sm_100 (RTX 50xx), sm_120 (Blackwell refresh)
 GENCODE_FLAGS := \
     -gencode arch=compute_80,code=sm_80 \
     -gencode arch=compute_86,code=sm_86 \
     -gencode arch=compute_89,code=sm_89 \
     -gencode arch=compute_100,code=sm_100 \
-    -gencode arch=compute_100,code=compute_100
+    -gencode arch=compute_120,code=sm_120 \
+    -gencode arch=compute_120,code=compute_120
 
 # Optimization flags
 # EXTRA_NVCCFLAGS can be set externally (e.g., -allow-unsupported-compiler for COPR)
@@ -69,8 +70,8 @@ BINDIR_BUILD := $(BUILDDIR)/bin
 # =============================================================================
 # Source Files
 # =============================================================================
-CUDA_SRCS   := src/cuda/bridge.cu
-CUDA_HDRS   := src/cuda/bridge.h
+CUDA_SRCS   := src/cuda/bridge.cu src/cuda/bulk_kernels.cu
+CUDA_HDRS   := src/cuda/bridge.h src/cuda/bulk_kernels.h src/cuda/wspr_structs.h
 CHECK_SRC   := src/wspr-cuda-check.c
 
 # =============================================================================
@@ -81,7 +82,7 @@ SHARED_LIB  := $(LIBDIR_BUILD)/lib$(NAME).so.$(VERSION)
 SONAME_LINK := $(LIBDIR_BUILD)/lib$(NAME).so.$(SOVERSION)
 SHARED_LINK := $(LIBDIR_BUILD)/lib$(NAME).so
 CHECK_BIN   := $(BINDIR_BUILD)/wspr-cuda-check
-CUDA_OBJ    := $(OBJDIR)/bridge.o
+CUDA_OBJS   := $(OBJDIR)/bridge.o $(OBJDIR)/bulk_kernels.o
 
 # =============================================================================
 # Default Target
@@ -95,7 +96,7 @@ help:
 	@printf "│  Sovereign CUDA HAL for WSPR Processing                         │\n"
 	@printf "└─────────────────────────────────────────────────────────────────┘\n"
 	@printf "\n"
-	@printf "Fat Binary Targets: sm_80, sm_86, sm_89, sm_100 + PTX\n"
+	@printf "Fat Binary Targets: sm_80, sm_86, sm_89, sm_100, sm_120 + PTX\n"
 	@printf "\n"
 	@printf "Usage: make [target]\n"
 	@printf "\n"
@@ -139,7 +140,7 @@ check-cuda:
 	fi
 	@printf "  CUDA Path:  $(CUDA_PATH)\n"
 	@printf "  nvcc:       $$($(NVCC) --version | grep release)\n"
-	@printf "  Targets:    sm_80, sm_86, sm_89, sm_100, compute_100 (PTX)\n"
+	@printf "  Targets:    sm_80, sm_86, sm_89, sm_100, sm_120, compute_120 (PTX)\n"
 	@printf "\n"
 	@printf "CUDA toolkit check passed.\n"
 
@@ -163,25 +164,31 @@ check-util: $(CHECK_BIN)
 $(OBJDIR) $(LIBDIR_BUILD) $(BINDIR_BUILD):
 	@mkdir -p $@
 
-# Compile CUDA source to object file (fat binary)
-$(CUDA_OBJ): $(CUDA_SRCS) $(CUDA_HDRS) | $(OBJDIR)
-	@printf "Compiling CUDA fat binary...\n"
-	@printf "  Architectures: sm_80, sm_86, sm_89, sm_100 + PTX\n"
-	$(NVCC) $(NVCC_FLAGS) -c -o $@ $(CUDA_SRCS)
+# Compile CUDA sources to object files (fat binary)
+$(OBJDIR)/bridge.o: src/cuda/bridge.cu $(CUDA_HDRS) | $(OBJDIR)
+	@printf "Compiling bridge.cu (fat binary)...\n"
+	@printf "  Architectures: sm_80, sm_86, sm_89, sm_100, sm_120 + PTX\n"
+	$(NVCC) $(NVCC_FLAGS) -c -o $@ $<
+	@printf "  Output: $@\n"
+
+$(OBJDIR)/bulk_kernels.o: src/cuda/bulk_kernels.cu src/cuda/bulk_kernels.h | $(OBJDIR)
+	@printf "Compiling bulk_kernels.cu (fat binary)...\n"
+	@printf "  Architectures: sm_80, sm_86, sm_89, sm_100, sm_120 + PTX\n"
+	$(NVCC) $(NVCC_FLAGS) -c -o $@ $<
 	@printf "  Output: $@\n"
 
 # Build static library
-$(STATIC_LIB): $(CUDA_OBJ) | $(LIBDIR_BUILD)
+$(STATIC_LIB): $(CUDA_OBJS) | $(LIBDIR_BUILD)
 	@printf "Creating static library...\n"
-	ar rcs $@ $<
+	ar rcs $@ $(CUDA_OBJS)
 	@printf "  Output: $@\n"
 
 # Build shared library with proper SONAME
-$(SHARED_LIB): $(CUDA_SRCS) $(CUDA_HDRS) | $(LIBDIR_BUILD)
+$(SHARED_LIB): $(CUDA_OBJS) | $(LIBDIR_BUILD)
 	@printf "Creating shared library...\n"
 	$(NVCC) $(NVCC_FLAGS) $(NVCC_SHARED) \
 		-Xlinker -soname,lib$(NAME).so.$(SOVERSION) \
-		-o $@ $(CUDA_SRCS) -L$(CUDA_LIB) -lcudart
+		-o $@ $(CUDA_OBJS) -L$(CUDA_LIB) -lcudart
 	ln -sf lib$(NAME).so.$(VERSION) $(LIBDIR_BUILD)/lib$(NAME).so.$(SOVERSION)
 	ln -sf lib$(NAME).so.$(SOVERSION) $(SHARED_LINK)
 	@printf "  Output: $@\n"
@@ -263,6 +270,10 @@ test: all
 	@printf "[TEST] Fat binary contains sm_80... "
 	@$(CUDA_PATH)/bin/cuobjdump --list-elf $(SHARED_LIB) 2>/dev/null | grep -q "sm_80" && \
 		printf "PASS\n" || { printf "FAIL (cuobjdump not available or sm_80 missing)\n"; }
+	@# Test 5b: Verify fat binary contains sm_120 (Blackwell refresh)
+	@printf "[TEST] Fat binary contains sm_120... "
+	@$(CUDA_PATH)/bin/cuobjdump --list-elf $(SHARED_LIB) 2>/dev/null | grep -q "sm_120" && \
+		printf "PASS\n" || { printf "FAIL (cuobjdump not available or sm_120 missing)\n"; }
 	@# Test 6: Verify PTX embedded
 	@printf "[TEST] Fat binary contains PTX... "
 	@$(CUDA_PATH)/bin/cuobjdump --list-ptx $(SHARED_LIB) 2>/dev/null | grep -q "ptx" && \
