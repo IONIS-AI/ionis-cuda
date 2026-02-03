@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ki7mt-ai-lab-cuda
-Version:        2.0.6
+Version:        2.0.7
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
 
@@ -101,6 +101,13 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Sun Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.7-1
+- Phase 7: Vector Vault - float4 embeddings with write-back to ClickHouse
+- Phase 8: Bulk Processor for overnight dataset processing
+- Add wspr.model_features table DDL for ML training
+- ClickHouse loader with insert_batch() for embedding storage
+- Tested: 48M embeddings in 69 seconds (686K rows/sec)
+
 * Sun Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.6-1
 - Add CUDA Signature Engine for Blackwell sm_120
 - Add CMakeLists.txt with CMake 3.28+ CUDA language support

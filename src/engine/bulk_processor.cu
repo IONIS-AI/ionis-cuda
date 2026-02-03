@@ -60,7 +60,7 @@ void print_header() {
     printf("\n");
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  " BOLD "Bulk Embedding Processor" RESET " - Blackwell sm_120              │\n");
-    printf("│  ki7mt-ai-lab-cuda v2.0.6                                   │\n");
+    printf("│  ki7mt-ai-lab-cuda v2.0.7                                   │\n");
     printf("│  Phase 8: The Big Crunch                                    │\n");
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");
