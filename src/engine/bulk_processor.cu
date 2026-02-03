@@ -60,7 +60,7 @@ void print_header() {
     printf("\n");
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  " BOLD "Bulk Embedding Processor" RESET " - Blackwell sm_120              │\n");
-    printf("│  ki7mt-ai-lab-cuda v2.0.8                                   │\n");
+    printf("│  ki7mt-ai-lab-cuda v2.1.0                                   │\n");
     printf("│  Phase 8: The Big Crunch                                    │\n");
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");
@@ -74,6 +74,8 @@ void print_usage(const char* prog) {
     printf("  --end DATE        End date (inclusive)\n");
     printf("\n");
     printf("Options:\n");
+    printf("  --host ADDR       ClickHouse host (default: $CH_HOST or 192.168.1.90)\n");
+    printf("  --port N          ClickHouse port (default: $CH_PORT or 9000)\n");
     printf("  --hourly          Process hour-by-hour (default: daily)\n");
     printf("  --band N          Filter by ADIF band ID (0 = all bands)\n");
     printf("  --dry-run         Count rows only, don't process\n");
@@ -265,6 +267,13 @@ int main(int argc, char* argv[]) {
 
     // Parse arguments
     std::string start_date, end_date;
+
+    // Default host/port from environment, then fallback to lab defaults
+    const char* env_host = getenv("CH_HOST");
+    const char* env_port = getenv("CH_PORT");
+    std::string ch_host = env_host ? env_host : "192.168.1.90";
+    int ch_port = env_port ? std::stoi(env_port) : 9000;
+
     bool hourly = false;
     bool dry_run = false;
     int band = 0;
@@ -276,6 +285,10 @@ int main(int argc, char* argv[]) {
             start_date = argv[++i];
         } else if (arg == "--end" && i + 1 < argc) {
             end_date = argv[++i];
+        } else if (arg == "--host" && i + 1 < argc) {
+            ch_host = argv[++i];
+        } else if (arg == "--port" && i + 1 < argc) {
+            ch_port = std::stoi(argv[++i]);
         } else if (arg == "--hourly") {
             hourly = true;
         } else if (arg == "--band" && i + 1 < argc) {
@@ -311,6 +324,7 @@ int main(int argc, char* argv[]) {
     // Initialize
     // -------------------------------------------------------------------------
     printf("Configuration:\n");
+    printf("  ClickHouse: %s:%d\n", ch_host.c_str(), ch_port);
     printf("  Start:      %s\n", start_date.c_str());
     printf("  End:        %s\n", end_date.c_str());
     printf("  Mode:       %s\n", hourly ? "Hourly" : "Daily");
@@ -334,8 +348,8 @@ int main(int argc, char* argv[]) {
 
     // Connect to ClickHouse
     wspr::io::ConnectionConfig config;
-    config.host = "localhost";
-    config.port = 9000;
+    config.host = ch_host;
+    config.port = ch_port;
     config.database = "wspr";
 
     wspr::io::ClickHouseLoader loader(config);
