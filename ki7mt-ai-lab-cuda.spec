@@ -101,31 +101,31 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
-* Fri Feb 07 2026 Greg Beam <ki7mt@yahoo.com> - 2.3.0-1
+* Sat Feb 07 2026 Greg Beam <ki7mt@yahoo.com> - 2.3.0-1
 - Align version across all lab packages at 2.3.0
 
-* Tue Feb 04 2026 Greg Beam <ki7mt@yahoo.com> - 2.2.0-1
+* Wed Feb 04 2026 Greg Beam <ki7mt@yahoo.com> - 2.2.0-1
 - Align version across all lab packages at 2.2.0 for Phase 4.1
 - Fix CMakeLists.txt version (was 2.0.8, now synced)
 
-* Mon Feb 03 2026 Greg Beam <ki7mt@yahoo.com> - 2.1.0-1
+* Tue Feb 03 2026 Greg Beam <ki7mt@yahoo.com> - 2.1.0-1
 - Align version across all lab packages at 2.1.0
 
-* Mon Feb 03 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.8-1
+* Tue Feb 03 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.8-1
 - Fix Physics Gap: 3-hour bucket JOIN for solar data matching
 - ClickHouse loader CTE aggregates Kp/X-ray/SFI into 3-hour windows
 - Solar penalty now varies 0.1-1.0 (was stuck at 1.0)
 - Geo penalty now varies 0.26-1.0 (was stuck at 1.0)
 - Add wspr.training_set_v1 Gold Standard dataset (6M rows, Jan 27-Feb 1)
 
-* Sun Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.7-1
+* Mon Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.7-1
 - Phase 7: Vector Vault - float4 embeddings with write-back to ClickHouse
 - Phase 8: Bulk Processor for overnight dataset processing
 - Add wspr.model_features table DDL for ML training
 - ClickHouse loader with insert_batch() for embedding storage
 - Tested: 48M embeddings in 69 seconds (686K rows/sec)
 
-* Sun Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.6-1
+* Mon Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.6-1
 - Add CUDA Signature Engine for Blackwell sm_120
 - Add CMakeLists.txt with CMake 3.28+ CUDA language support
 - Add signature_kernel.cu with path quality computation (Haversine, Kp, X-ray)
