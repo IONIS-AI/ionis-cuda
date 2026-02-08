@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.28)
 
 # Project definition with CUDA language
 project(ki7mt-ai-lab-cuda
-    VERSION 2.3.0
+    VERSION 2.3.1
     DESCRIPTION "Sovereign CUDA Engine for WSPR Propagation Signature Analysis"
     LANGUAGES CXX CUDA
 )
@@ -188,6 +188,10 @@ if(HAVE_CLICKHOUSE)
 
     target_include_directories(bulk-processor PRIVATE
         ${CMAKE_SOURCE_DIR}/src/io
+    )
+
+    target_compile_definitions(bulk-processor PRIVATE
+        PROJECT_VERSION="${PROJECT_VERSION}"
     )
 
     target_link_libraries(bulk-processor

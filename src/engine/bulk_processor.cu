@@ -60,8 +60,7 @@ void print_header() {
     printf("\n");
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  " BOLD "Bulk Embedding Processor" RESET " - Blackwell sm_120              │\n");
-    printf("│  ki7mt-ai-lab-cuda v2.1.0                                   │\n");
-    printf("│  Phase 8: The Big Crunch                                    │\n");
+    printf("│  ki7mt-ai-lab-cuda v%-40s│\n", PROJECT_VERSION);
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");
 }
@@ -405,7 +404,14 @@ int main(int argc, char* argv[]) {
             total_fetched += fetched;
 
             if (fetched == 0) {
-                printf("[%s] " YELLOW "No data" RESET "\n", window_start.c_str());
+                const auto& err = loader.last_error();
+                if (!err.empty()) {
+                    printf("[%s] " RED "Query error: %s" RESET "\n",
+                           window_start.c_str(), err.c_str());
+                    total_errors++;
+                } else {
+                    printf("[%s] " YELLOW "No data" RESET "\n", window_start.c_str());
+                }
                 continue;
             }
 
