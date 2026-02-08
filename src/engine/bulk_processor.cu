@@ -2,7 +2,7 @@
  * bulk_processor.cu - Bulk Embedding Processor for Full Dataset
  *
  * Processes WSPR spots in time-based chunks, computing embeddings on
- * Blackwell GPU and writing to wspr.model_features for ML training.
+ * Blackwell GPU and writing to wspr.silver for ML training.
  *
  * Features:
  *   - Time-based iteration (hourly or daily)

@@ -2,7 +2,7 @@
  * training_demo.cu - Signature Engine Training Demo
  *
  * Fetches WSPR spots from ClickHouse, computes embeddings on Blackwell GPU,
- * and writes results back to wspr.model_features table.
+ * and writes results back to wspr.silver table.
  *
  * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
  *
@@ -62,7 +62,7 @@ void print_usage(const char* prog) {
     printf("  -s, --start DATE      Start date (YYYY-MM-DD)\n");
     printf("  -e, --end DATE        End date (YYYY-MM-DD)\n");
     printf("  -b, --band N          Band filter (ADIF band ID, 0 = all)\n");
-    printf("  -w, --write           Write embeddings to wspr.model_features\n");
+    printf("  -w, --write           Write embeddings to wspr.silver\n");
     printf("  -h, --help            Show this help\n");
     printf("\n");
 }
@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
     // 6. Write Back to ClickHouse (optional)
     // -------------------------------------------------------------------------
     if (write_back) {
-        printf("[6/6] Writing embeddings to wspr.model_features...\n");
+        printf("[6/6] Writing embeddings to wspr.silver...\n");
 
         auto write_start = std::chrono::high_resolution_clock::now();
 
@@ -259,7 +259,7 @@ int main(int argc, char* argv[]) {
 
         if (inserted == 0) {
             fprintf(stderr, RED "ERROR: %s\n" RESET, loader.last_error().c_str());
-            printf("      " YELLOW "SKIPPED" RESET " (table may not exist - run sql/01-model_features.sql)\n\n");
+            printf("      " YELLOW "SKIPPED" RESET " (table may not exist - run sql/01-silver.sql)\n\n");
         } else {
             printf("      Inserted: %zu rows\n", inserted);
             printf("      Time: %.3f seconds (%.2f Krps)\n", write_time, inserted / write_time / 1000.0);

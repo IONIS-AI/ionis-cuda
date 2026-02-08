@@ -1,5 +1,5 @@
 -- =============================================================================
--- wspr.model_features - ML Feature Storage for Propagation Signatures
+-- wspr.silver - ML Feature Storage for Propagation Signatures
 -- =============================================================================
 --
 -- Stores GPU-computed embeddings for k-NN search and model training.
@@ -16,7 +16,7 @@
 -- License: GPL-3.0-or-later
 -- =============================================================================
 
-CREATE TABLE IF NOT EXISTS wspr.model_features
+CREATE TABLE IF NOT EXISTS wspr.silver
 (
     -- Temporal key
     timestamp DateTime CODEC(Delta, ZSTD(1)),
@@ -62,11 +62,11 @@ AS SELECT
     count() AS count,
     avg(distance) AS avg_distance,
     avg(kp_index) AS avg_kp
-FROM wspr.model_features
+FROM wspr.silver
 GROUP BY timestamp, band, quality_bucket;
 
 -- Index for efficient embedding similarity queries
 -- Note: ClickHouse doesn't have native vector indexes, but we can use
 -- bloom filters for pre-filtering before exact computation
-ALTER TABLE wspr.model_features ADD INDEX idx_quality (embedding[4]) TYPE minmax GRANULARITY 4;
-ALTER TABLE wspr.model_features ADD INDEX idx_kp (kp_index) TYPE minmax GRANULARITY 4;
+ALTER TABLE wspr.silver ADD INDEX idx_quality (embedding[4]) TYPE minmax GRANULARITY 4;
+ALTER TABLE wspr.silver ADD INDEX idx_kp (kp_index) TYPE minmax GRANULARITY 4;

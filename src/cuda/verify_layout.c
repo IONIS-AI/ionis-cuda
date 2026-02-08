@@ -344,7 +344,7 @@ static void print_verification_sql(void) {
     printf("      trimRight(version, '\\0') = '%s' AS version_ok,\n", TEST_VERSION);
     printf("      code = %u AS code_ok,\n", TEST_CODE);
     printf("      column_count = %u AS column_count_ok\n", TEST_COLUMN_COUNT);
-    printf("  FROM wspr.spots_raw\n");
+    printf("  FROM wspr.bronze\n");
     printf("  WHERE id = %" PRIu64 ";\n", (uint64_t)TEST_ID);
 }
 

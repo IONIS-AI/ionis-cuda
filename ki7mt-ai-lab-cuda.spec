@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ki7mt-ai-lab-cuda
-Version:        2.3.0
+Version:        2.3.1
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
 
@@ -101,6 +101,10 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Sat Feb 08 2026 Greg Beam <ki7mt@yahoo.com> - 2.3.1-1
+- Medallion architecture: wspr.bronze->wspr.silver embedding pipeline
+- Replace stale core README copy with proper CUDA README
+
 * Sat Feb 07 2026 Greg Beam <ki7mt@yahoo.com> - 2.3.0-1
 - Align version across all lab packages at 2.3.0
 
@@ -121,7 +125,7 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 * Mon Feb 02 2026 Greg Beam <ki7mt@yahoo.com> - 2.0.7-1
 - Phase 7: Vector Vault - float4 embeddings with write-back to ClickHouse
 - Phase 8: Bulk Processor for overnight dataset processing
-- Add wspr.model_features table DDL for ML training
+- Add wspr.silver table DDL for ML training
 - ClickHouse loader with insert_batch() for embedding storage
 - Tested: 48M embeddings in 69 seconds (686K rows/sec)
 

@@ -7,7 +7,7 @@
 #
 # This script:
 #   1. Compiles and runs verify_layout to generate test_row.bin
-#   2. Creates test table in ClickHouse (wspr.spots_raw_test)
+#   2. Creates test table in ClickHouse (wspr.bronze_test)
 #   3. Ingests test_row.bin using RowBinary format
 #   4. Queries the table to verify all 17 fields match expected values
 #   5. Cleans up test data
@@ -167,11 +167,11 @@ create_test_table() {
     print_header "Step 3: Creating ClickHouse Test Table"
 
     print_info "Dropping existing test table (if any)..."
-    ${CLICKHOUSE_CLIENT} -q "DROP TABLE IF EXISTS wspr.spots_raw_test"
+    ${CLICKHOUSE_CLIENT} -q "DROP TABLE IF EXISTS wspr.bronze_test"
 
-    print_info "Creating wspr.spots_raw_test with FixedString columns..."
+    print_info "Creating wspr.bronze_test with FixedString columns..."
     ${CLICKHOUSE_CLIENT} -q "
-        CREATE TABLE wspr.spots_raw_test (
+        CREATE TABLE wspr.bronze_test (
             id UInt64,
             timestamp DateTime,
             reporter FixedString(16),
@@ -194,8 +194,8 @@ create_test_table() {
         COMMENT 'Test table for verify_ingestion.sh'
     "
 
-    if ${CLICKHOUSE_CLIENT} -q "EXISTS TABLE wspr.spots_raw_test" | grep -q 1; then
-        print_ok "Created wspr.spots_raw_test"
+    if ${CLICKHOUSE_CLIENT} -q "EXISTS TABLE wspr.bronze_test" | grep -q 1; then
+        print_ok "Created wspr.bronze_test"
     else
         print_fail "Failed to create test table"
         exit 1
@@ -208,14 +208,14 @@ ingest_binary() {
 
     cd "${SCRIPT_DIR}"
 
-    print_info "Inserting test_row.bin into wspr.spots_raw_test..."
+    print_info "Inserting test_row.bin into wspr.bronze_test..."
 
     # Use RowBinary format - ClickHouse reads columns in order
     cat test_row.bin | ${CLICKHOUSE_CLIENT} -q \
-        "INSERT INTO wspr.spots_raw_test FORMAT RowBinary"
+        "INSERT INTO wspr.bronze_test FORMAT RowBinary"
 
     # Verify row count
-    ROW_COUNT=$(${CLICKHOUSE_CLIENT} -q "SELECT count() FROM wspr.spots_raw_test")
+    ROW_COUNT=$(${CLICKHOUSE_CLIENT} -q "SELECT count() FROM wspr.bronze_test")
 
     if [ "$ROW_COUNT" = "1" ]; then
         print_ok "Inserted 1 row"
@@ -254,55 +254,55 @@ verify_data() {
 
     # Check each field
     check_field "id" "${TEST_ID}" \
-        "SELECT id FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT id FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "timestamp" "${TEST_TIMESTAMP}" \
-        "SELECT toUnixTimestamp(timestamp) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT toUnixTimestamp(timestamp) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "reporter" "${TEST_REPORTER}" \
-        "SELECT trimRight(reporter, char(0)) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT trimRight(reporter, char(0)) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "reporter_grid" "${TEST_REPORTER_GRID}" \
-        "SELECT trimRight(reporter_grid, char(0)) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT trimRight(reporter_grid, char(0)) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "snr" "${TEST_SNR}" \
-        "SELECT snr FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT snr FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "frequency" "${TEST_FREQUENCY}" \
-        "SELECT frequency FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT frequency FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "callsign" "${TEST_CALLSIGN}" \
-        "SELECT trimRight(callsign, char(0)) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT trimRight(callsign, char(0)) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "grid" "${TEST_GRID}" \
-        "SELECT trimRight(grid, char(0)) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT trimRight(grid, char(0)) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "power" "${TEST_POWER}" \
-        "SELECT power FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT power FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "drift" "${TEST_DRIFT}" \
-        "SELECT drift FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT drift FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "distance" "${TEST_DISTANCE}" \
-        "SELECT distance FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT distance FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "azimuth" "${TEST_AZIMUTH}" \
-        "SELECT azimuth FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT azimuth FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "band" "${TEST_BAND}" \
-        "SELECT band FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT band FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "mode" "${TEST_MODE}" \
-        "SELECT trimRight(mode, char(0)) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT trimRight(mode, char(0)) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "version" "${TEST_VERSION}" \
-        "SELECT trimRight(version, char(0)) FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT trimRight(version, char(0)) FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "code" "${TEST_CODE}" \
-        "SELECT code FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT code FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     check_field "column_count" "${TEST_COLUMN_COUNT}" \
-        "SELECT column_count FROM wspr.spots_raw_test WHERE id = ${TEST_ID}"
+        "SELECT column_count FROM wspr.bronze_test WHERE id = ${TEST_ID}"
 
     printf "\n"
 
@@ -323,15 +323,15 @@ cleanup() {
 
     if [ $KEEP_DATA -eq 0 ]; then
         print_info "Dropping test table..."
-        ${CLICKHOUSE_CLIENT} -q "DROP TABLE IF EXISTS wspr.spots_raw_test"
-        print_ok "Dropped wspr.spots_raw_test"
+        ${CLICKHOUSE_CLIENT} -q "DROP TABLE IF EXISTS wspr.bronze_test"
+        print_ok "Dropped wspr.bronze_test"
 
         print_info "Removing temporary files..."
         rm -f verify_layout test_row.bin test_row_gpu.bin
         print_ok "Removed temporary files"
     else
         print_info "Keeping test data (--keep specified)"
-        print_info "Test table: wspr.spots_raw_test"
+        print_info "Test table: wspr.bronze_test"
         print_info "Binary files: test_row.bin, test_row_gpu.bin"
     fi
 }

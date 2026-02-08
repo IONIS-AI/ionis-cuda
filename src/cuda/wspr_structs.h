@@ -4,7 +4,7 @@
  * @version 2.0.0
  *
  * CRITICAL: This struct layout MUST match:
- *   1. ClickHouse schema: wspr.spots_raw (01-wspr_schema_v2.sql)
+ *   1. ClickHouse schema: wspr.bronze (01-wspr_schema_v2.sql)
  *   2. Go bridge: internal/parser/cuda_bridge.go
  *
  * MEMORY LAYOUT DESIGN PRINCIPLES:
@@ -47,7 +47,7 @@ extern "C" {
  * WSPRSpot Structure (128 bytes, 16-byte aligned)
  * ============================================================================
  *
- * Memory Layout (matches ClickHouse wspr.spots_raw column order):
+ * Memory Layout (matches ClickHouse wspr.bronze column order):
  *
  *   Offset   0: id             (uint64_t,  8 bytes)  UInt64
  *   Offset   8: timestamp      (uint32_t,  4 bytes)  DateTime (Unix seconds)

@@ -34,7 +34,7 @@ struct TrainingBatch {
     std::vector<float> rx_lat;
     std::vector<float> rx_lon;
 
-    // Solar context (from solar.indices_raw join)
+    // Solar context (from solar.bronze join)
     std::vector<float> kp_index;
     std::vector<float> xray_flux;  // xray_long (0.1-0.8nm band)
     std::vector<float> sfi;        // Solar flux index
@@ -175,7 +175,7 @@ public:
     );
 
     /**
-     * Insert computed embeddings into wspr.model_features
+     * Insert computed embeddings into wspr.silver
      *
      * @param batch      Original training batch (for metadata)
      * @param embeddings Computed embeddings from GPU

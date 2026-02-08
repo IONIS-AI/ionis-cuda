@@ -161,7 +161,7 @@ TrainingBatch ClickHouseLoader::fetch_batch(
             << "        max(ap_index) AS ap, "
             << "        max(xray_long) AS xray, "
             << "        max(observed_flux) AS sfi "
-            << "    FROM solar.indices_raw "
+            << "    FROM solar.bronze "
             << "    GROUP BY date, hour_bucket "
             << ") "
             << "SELECT "
@@ -173,7 +173,7 @@ TrainingBatch ClickHouseLoader::fetch_batch(
             << "    coalesce(s.sfi, 0) AS sfi, "
             << "    w.frequency AS freq, "
             << "    w.band AS band "
-            << "FROM wspr.spots_raw w "
+            << "FROM wspr.bronze w "
             << "LEFT JOIN solar_3h s ON "
             << "    toDate(w.timestamp) = s.date AND "
             << "    intDiv(toHour(w.timestamp), 3) = s.hour_bucket "
@@ -258,7 +258,7 @@ uint64_t ClickHouseLoader::get_row_count(
 
     try {
         std::ostringstream sql;
-        sql << "SELECT count() FROM wspr.spots_raw WHERE 1=1 ";
+        sql << "SELECT count() FROM wspr.bronze WHERE 1=1 ";
 
         if (!start_date.empty()) {
             sql << "AND timestamp >= toDateTime('" << start_date << " 00:00:00') ";
@@ -380,7 +380,7 @@ size_t ClickHouseLoader::insert_batch(
         block.AppendColumn("embedding", col_embedding);
 
         // Insert the block
-        impl_->client->Insert("wspr.model_features", block);
+        impl_->client->Insert("wspr.silver", block);
 
         last_error_.clear();
         return n;
