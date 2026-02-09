@@ -1,6 +1,8 @@
 # ki7mt-ai-lab-cuda
 
-**CUDA signature embedding engine for the KI7MT AI Lab**
+CUDA signature embedding engine for the KI7MT Sovereign AI Lab.
+
+Part of the [IONIS](https://github.com/KI7MT/ki7mt-ai-lab-docs) (Ionospheric Neural Inference System) project.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![COPR](https://img.shields.io/badge/COPR-ki7mt%2Fai--lab-blue)](https://copr.fedorainfracloud.org/coprs/ki7mt/ai-lab/)
@@ -8,20 +10,30 @@
 
 ## Overview
 
-Generates float4 embeddings from WSPR spot data and solar indices using CUDA
-kernels on NVIDIA GPUs. The bulk-processor reads from `wspr.bronze` and
-`solar.bronze` in ClickHouse and writes embeddings to `wspr.silver`.
+Generates float4 embeddings from WSPR spot data and solar indices using CUDA kernels on NVIDIA GPUs. The bulk-processor reads from `wspr.bronze` and `solar.bronze` in ClickHouse and writes embeddings to `wspr.silver`.
 
-```text
-Pipeline:  wspr.bronze + solar.bronze  -->  bulk-processor (CUDA)  -->  wspr.silver
+**Current version:** 2.3.1
+
+```
+Pipeline:  wspr.bronze + solar.bronze  ──▶  bulk-processor (CUDA)  ──▶  wspr.silver
 Output:    4.4B embeddings, 41 GiB
 Hardware:  RTX PRO 6000 (96 GB VRAM) — single-pass processing
 Wall time: ~45 min on Threadripper 9975WX
 ```
 
+## Components
+
+| Component | Description |
+|-----------|-------------|
+| `bulk-processor` | Main CUDA embedding generator — reads ClickHouse, writes silver table |
+| `wspr-cuda-check` | Quick GPU capability check utility |
+| `src/cuda/` | CUDA kernels for embedding computation |
+| `src/engine/` | Processing engine and batch orchestration |
+| `src/io/` | ClickHouse I/O with Maidenhead grid conversion |
+
 ## Requirements
 
-- NVIDIA GPU with sufficient VRAM (tested on RTX PRO 6000)
+- NVIDIA GPU with sufficient VRAM (tested on RTX PRO 6000, 96 GB)
 - CUDA 12.8+ toolkit
 - NVIDIA driver 570+
 - CMake 3.28+
@@ -66,9 +78,18 @@ make all
 sudo make install
 ```
 
+## Related Repositories
+
+| Repository | Purpose |
+|------------|---------|
+| [ki7mt-ai-lab-apps](https://github.com/KI7MT/ki7mt-ai-lab-apps) | Go data ingesters (WSPR, solar, contest, RBN) |
+| [ki7mt-ai-lab-core](https://github.com/KI7MT/ki7mt-ai-lab-core) | DDL schemas, SQL scripts |
+| [ki7mt-ai-lab-training](https://github.com/KI7MT/ki7mt-ai-lab-training) | PyTorch model training |
+| [ki7mt-ai-lab-docs](https://github.com/KI7MT/ki7mt-ai-lab-docs) | Documentation site |
+
 ## License
 
-GPL-3.0-or-later - See [COPYING](COPYING)
+GPL-3.0-or-later — See [COPYING](COPYING)
 
 ## Author
 
