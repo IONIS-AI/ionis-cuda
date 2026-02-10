@@ -12,7 +12,7 @@ Part of the [IONIS](https://github.com/KI7MT/ki7mt-ai-lab-docs) (Ionospheric Neu
 
 Generates float4 embeddings from WSPR spot data and solar indices using CUDA kernels on NVIDIA GPUs. The bulk-processor reads from `wspr.bronze` and `solar.bronze` in ClickHouse and writes embeddings to `wspr.silver`.
 
-**Current version:** 2.3.1
+**Current version:** 2.3.2
 
 ```
 Pipeline:  wspr.bronze + solar.bronze  ──▶  bulk-processor (CUDA)  ──▶  wspr.silver

@@ -1,7 +1,7 @@
 /**
  * @file wspr_structs.h
  * @brief WSPR Data Structures - Synchronized with ClickHouse Schema v2
- * @version 2.0.0
+ * @version 2.3.2
  *
  * CRITICAL: This struct layout MUST match:
  *   1. ClickHouse schema: wspr.bronze (01-wspr_schema_v2.sql)

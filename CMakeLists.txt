@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.28)
 
 # Project definition with CUDA language
 project(ki7mt-ai-lab-cuda
-    VERSION 2.3.1
+    VERSION 2.3.2
     DESCRIPTION "Sovereign CUDA Engine for WSPR Propagation Signature Analysis"
     LANGUAGES CXX CUDA
 )

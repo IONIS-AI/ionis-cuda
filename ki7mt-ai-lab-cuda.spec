@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ki7mt-ai-lab-cuda
-Version:        2.3.1
+Version:        2.3.2
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
 

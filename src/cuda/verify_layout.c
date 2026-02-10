@@ -1,7 +1,7 @@
 /**
  * @file verify_layout.c
  * @brief Memory Layout Verification and Test Binary Generator
- * @version 2.0.0
+ * @version 2.3.2
  *
  * This utility:
  *   1. Prints byte-level memory layout of both WSPRSpot and WSPRSpotCH

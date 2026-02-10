@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==============================================================================
 # Name..........: verify_ingestion.sh
-# Version.......: 2.0.0
+# Version.......: 2.3.2
 # Description...: End-to-end verification of WSPR struct ↔ ClickHouse alignment
 # ==============================================================================
 #
