@@ -4,7 +4,7 @@
  * Fetches WSPR spots from ClickHouse, computes embeddings on Blackwell GPU,
  * and writes results back to wspr.silver table.
  *
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+ * Part of: ionis-cuda (Sovereign CUDA Engine)
  *
  * Copyright (c) 2026 KI7MT - Greg Beam
  * License: GPL-3.0-or-later
@@ -48,7 +48,7 @@ void print_header() {
     printf("\n");
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  Signature Engine Training Demo - Blackwell sm_120          │\n");
-    printf("│  ki7mt-ai-lab-cuda v2.3.2                                   │\n");
+    printf("│  ionis-cuda v3.0.0                                          │\n");
     printf("│  Phase 7: Vector Vault (Embedding Write-Back)               │\n");
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");

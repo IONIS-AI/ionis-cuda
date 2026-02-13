@@ -3,7 +3,7 @@
  *
  * GPU-accelerated path quality computation for propagation prediction.
  *
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+ * Part of: ionis-cuda (Sovereign CUDA Engine)
  * Target:  Blackwell sm_120 (RTX PRO 6000)
  *
  * Copyright (c) 2026 KI7MT - Greg Beam

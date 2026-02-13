@@ -4,7 +4,7 @@
  * Fetches WSPR spots joined with solar indices for GPU processing.
  * Converts Maidenhead grids to lat/lon coordinates.
  *
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+ * Part of: ionis-cuda (Sovereign CUDA Engine)
  *
  * Copyright (c) 2026 KI7MT - Greg Beam
  * License: GPL-3.0-or-later

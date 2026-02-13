@@ -1,18 +1,21 @@
 # Disable debug package generation (CUDA binaries don't have standard debug info)
 %global debug_package %{nil}
 
-Name:           ki7mt-ai-lab-cuda
-Version:        2.4.0
+Name:           ionis-cuda
+Version:        3.0.0
 Release:        1%{?dist}
-Summary:        Sovereign CUDA HAL for KI7MT AI Lab WSPR processing
+Summary:        Sovereign CUDA HAL for IONIS WSPR processing
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/KI7MT/ki7mt-ai-lab-cuda
+URL:            https://github.com/IONIS-AI/ionis-cuda
 # Hardcoded Source avoids rpkg naming conflicts
-Source0:        https://github.com/KI7MT/ki7mt-ai-lab-cuda/archive/v%{version}.tar.gz
+Source0:        https://github.com/IONIS-AI/ionis-cuda/archive/v%{version}.tar.gz
 
 # Architecture-specific (fat binary: sm_80, sm_86, sm_89, sm_100)
 ExclusiveArch:  x86_64
+
+Obsoletes:      ki7mt-ai-lab-cuda < 3.0.0
+Provides:       ki7mt-ai-lab-cuda
 
 # Build requirements (NVIDIA CUDA Toolkit 13.1 upstream)
 BuildRequires:  cuda-nvcc-13-1
@@ -47,7 +50,7 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       cuda-cudart-devel-13-1
 
 %description devel
-Header files and CUDA source code for the KI7MT AI Lab CUDA HAL.
+Header files and CUDA source code for the IONIS CUDA HAL.
 Required for building applications with CGO that use the CUDA kernels.
 
 %prep
@@ -82,11 +85,11 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 
 %files devel
 %doc src/cuda/README.md
-# Header files (in /usr/include/ki7mt/)
-%dir %{_includedir}/ki7mt
-%{_includedir}/ki7mt/bridge.h
-%{_includedir}/ki7mt/bulk_kernels.h
-%{_includedir}/ki7mt/wspr_structs.h
+# Header files (in /usr/include/ionis/)
+%dir %{_includedir}/ionis
+%{_includedir}/ionis/bridge.h
+%{_includedir}/ionis/bulk_kernels.h
+%{_includedir}/ionis/wspr_structs.h
 # Static library
 %{_libdir}/lib%{name}.a
 # Development symlink
@@ -101,11 +104,17 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
-* Tue Feb 11 2026 Greg Beam <ki7mt@yahoo.com> - 2.4.0-1
+* Fri Feb 13 2026 Greg Beam <ki7mt@yahoo.com> - 3.0.0-1
+- Rename package: ki7mt-ai-lab-cuda → ionis-cuda
+- Move to IONIS-AI GitHub org
+- Change include path: /usr/include/ki7mt → /usr/include/ionis
+- Add Obsoletes/Provides for seamless RPM upgrade
+
+* Wed Feb 11 2026 Greg Beam <ki7mt@yahoo.com> - 2.4.0-1
 - V20 production release
 - Update hardware refs: RTX 5090 (32GB) → RTX PRO 6000 (96GB, 188 SMs)
 
-* Sat Feb 08 2026 Greg Beam <ki7mt@yahoo.com> - 2.3.1-1
+* Sun Feb 08 2026 Greg Beam <ki7mt@yahoo.com> - 2.3.1-1
 - Medallion architecture: wspr.bronze->wspr.silver embedding pipeline
 - Replace stale core README copy with proper CUDA README
 
@@ -154,7 +163,7 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 * Mon Jan 20 2025 Greg Beam <ki7mt@yahoo.com> - 2.0.1-1
 - Add sm_120 (Blackwell refresh) to fat binary targets
 - Add bulk_kernels.cu: SoA-based bulk processing kernels for CGO
-- Sync version with ki7mt-ai-lab-core v2.0.1
+- Sync version with ionis-core v2.0.1
 
 * Fri Jan 17 2025 Greg Beam <ki7mt@yahoo.com> - 1.1.7-1
 - Add wspr_structs.h: RTX 5090-optimized 128-byte struct synchronized with ClickHouse

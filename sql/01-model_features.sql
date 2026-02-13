@@ -11,7 +11,7 @@
 --   [2] geo_penalty    - Geomagnetic storm factor (0-1)
 --   [3] quality        - Combined path quality score (0-1)
 --
--- Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+-- Part of: ionis-cuda (Sovereign CUDA Engine)
 -- Copyright (c) 2026 KI7MT - Greg Beam
 -- License: GPL-3.0-or-later
 -- =============================================================================

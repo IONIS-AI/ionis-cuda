@@ -4,7 +4,7 @@
  * Validates the path quality kernel on Blackwell GPU.
  * Tests various scenarios: quiet conditions, storms, blackouts.
  *
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+ * Part of: ionis-cuda (Sovereign CUDA Engine)
  *
  * Copyright (c) 2026 KI7MT - Greg Beam
  * License: GPL-3.0-or-later
@@ -88,7 +88,7 @@ void print_header() {
     printf("\n");
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  Signature Engine Test - Blackwell sm_120                   │\n");
-    printf("│  ki7mt-ai-lab-cuda v2.3.2                                   │\n");
+    printf("│  ionis-cuda v3.0.0                                          │\n");
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");
 }

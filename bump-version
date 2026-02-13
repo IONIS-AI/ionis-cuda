@@ -16,7 +16,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VERSION_FILE="$SCRIPT_DIR/VERSION"
-SPEC_FILE="$SCRIPT_DIR/ki7mt-ai-lab-cuda.spec"
+SPEC_FILE="$SCRIPT_DIR/ionis-cuda.spec"
 SOURCE_FILE="$SCRIPT_DIR/src/wspr-cuda-check.c"
 
 usage() {

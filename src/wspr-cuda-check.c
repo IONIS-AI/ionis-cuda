@@ -2,7 +2,7 @@
  * wspr-cuda-check - CUDA HAL Self-Test Utility
  *
  * Purpose: Verify CUDA toolkit handshake and GPU compute capability
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA HAL)
+ * Part of: ionis-cuda (Sovereign CUDA HAL)
  *
  * Usage: wspr-cuda-check [--verbose] [--help] [--version]
  *
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  wspr-cuda-check v%s                                      │\n", VERSION);
-    printf("│  ki7mt-ai-lab-cuda Sovereign HAL Self-Test                  │\n");
+    printf("│  ionis-cuda Sovereign HAL Self-Test                         │\n");
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");
 

@@ -1,4 +1,4 @@
-# Makefile for ki7mt-ai-lab-cuda
+# Makefile for ionis-cuda
 #
 # Sovereign Hardware Abstraction Layer (HAL) for WSPR CUDA processing
 # Target: RTX 5090 (sm_100) with legacy support (sm_80/86/89)
@@ -16,7 +16,7 @@ SHELL := /bin/bash
 # =============================================================================
 # Package Metadata (from VERSION file)
 # =============================================================================
-NAME        := ki7mt-ai-lab-cuda
+NAME        := ionis-cuda
 VERSION     := $(shell cat VERSION 2>/dev/null || echo "0.0.0")
 SOVERSION   := $(word 1,$(subst ., ,$(VERSION)))
 
@@ -25,7 +25,7 @@ SOVERSION   := $(word 1,$(subst ., ,$(VERSION)))
 # =============================================================================
 PREFIX      := /usr
 LIBDIR      := $(PREFIX)/lib64
-INCDIR      := $(PREFIX)/include/ki7mt
+INCDIR      := $(PREFIX)/include/ionis
 BINDIR      := $(PREFIX)/bin
 DATADIR     := $(PREFIX)/share/$(NAME)
 
@@ -92,7 +92,7 @@ CUDA_OBJS   := $(OBJDIR)/bridge.o $(OBJDIR)/bulk_kernels.o
 help:
 	@printf "\n"
 	@printf "┌─────────────────────────────────────────────────────────────────┐\n"
-	@printf "│  ki7mt-ai-lab-cuda v$(VERSION)                                      │\n"
+	@printf "│  ionis-cuda v$(VERSION)                                              │\n"
 	@printf "│  Sovereign CUDA HAL for WSPR Processing                         │\n"
 	@printf "└─────────────────────────────────────────────────────────────────┘\n"
 	@printf "\n"

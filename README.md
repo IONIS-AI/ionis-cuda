@@ -1,18 +1,14 @@
-# ki7mt-ai-lab-cuda
+# ionis-cuda
 
-CUDA signature embedding engine for the KI7MT Sovereign AI Lab.
-
-Part of the [IONIS](https://github.com/KI7MT/ki7mt-ai-lab-docs) (Ionospheric Neural Inference System) project.
+CUDA signature embedding engine for the IONIS project.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![COPR](https://img.shields.io/badge/COPR-ki7mt%2Fai--lab-blue)](https://copr.fedorainfracloud.org/coprs/ki7mt/ai-lab/)
+[![COPR](https://img.shields.io/badge/COPR-ki7mt%2Fionis--ai-blue)](https://copr.fedorainfracloud.org/coprs/ki7mt/ionis-ai/)
 [![Platform: EL9](https://img.shields.io/badge/Platform-EL9-green.svg)](https://rockylinux.org/)
 
 ## Overview
 
 Generates float4 embeddings from WSPR spot data and solar indices using CUDA kernels on NVIDIA GPUs. The bulk-processor reads from `wspr.bronze` and `solar.bronze` in ClickHouse and writes embeddings to `wspr.silver`.
-
-**Current version:** 2.3.2
 
 ```
 Pipeline:  wspr.bronze + solar.bronze  ──▶  bulk-processor (CUDA)  ──▶  wspr.silver
@@ -65,15 +61,24 @@ CH_HOST=10.60.1.1 CH_PORT=9000 bulk-processor
 ### From COPR (Recommended)
 
 ```bash
-sudo dnf copr enable ki7mt/ai-lab
-sudo dnf install ki7mt-ai-lab-cuda
+sudo dnf copr enable ki7mt/ionis-ai
+sudo dnf install ionis-cuda
+```
+
+### Upgrading from ki7mt-ai-lab-cuda
+
+The `ionis-cuda` package includes `Obsoletes: ki7mt-ai-lab-cuda` for seamless upgrade:
+
+```bash
+sudo dnf copr enable ki7mt/ionis-ai
+sudo dnf upgrade --refresh
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/KI7MT/ki7mt-ai-lab-cuda.git
-cd ki7mt-ai-lab-cuda
+git clone https://github.com/IONIS-AI/ionis-cuda.git
+cd ionis-cuda
 make all
 sudo make install
 ```
@@ -82,10 +87,10 @@ sudo make install
 
 | Repository | Purpose |
 |------------|---------|
-| [ki7mt-ai-lab-apps](https://github.com/KI7MT/ki7mt-ai-lab-apps) | Go data ingesters (WSPR, solar, contest, RBN) |
-| [ki7mt-ai-lab-core](https://github.com/KI7MT/ki7mt-ai-lab-core) | DDL schemas, SQL scripts |
-| [ki7mt-ai-lab-training](https://github.com/KI7MT/ki7mt-ai-lab-training) | PyTorch model training |
-| [ki7mt-ai-lab-docs](https://github.com/KI7MT/ki7mt-ai-lab-docs) | Documentation site |
+| [ionis-core](https://github.com/IONIS-AI/ionis-core) | DDL schemas, SQL scripts |
+| [ionis-apps](https://github.com/IONIS-AI/ionis-apps) | Go data ingesters (WSPR, solar, contest, RBN) |
+| [ionis-training](https://github.com/IONIS-AI/ionis-training) | PyTorch model training |
+| [ionis-docs](https://github.com/IONIS-AI/ionis-docs) | Documentation site |
 
 ## License
 
@@ -97,5 +102,5 @@ Greg Beam, KI7MT
 
 ## Links
 
-- **COPR:** https://copr.fedorainfracloud.org/coprs/ki7mt/ai-lab/
-- **Issues:** https://github.com/KI7MT/ki7mt-ai-lab-cuda/issues
+- **COPR:** https://copr.fedorainfracloud.org/coprs/ki7mt/ionis-ai/
+- **Issues:** https://github.com/IONIS-AI/ionis-cuda/issues

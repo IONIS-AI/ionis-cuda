@@ -5,7 +5,7 @@
  * Combines great circle distance with geomagnetic conditions to produce
  * a "path quality" score that can be used for signature matching.
  *
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+ * Part of: ionis-cuda (Sovereign CUDA Engine)
  * Target:  Blackwell sm_120 (RTX PRO 6000)
  *
  * Mathematical Model:

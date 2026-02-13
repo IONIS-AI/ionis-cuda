@@ -10,7 +10,7 @@
  *   - Resilient: continues on batch failures
  *   - Progress reporting with throughput stats
  *
- * Part of: ki7mt-ai-lab-cuda (Sovereign CUDA Engine)
+ * Part of: ionis-cuda (Sovereign CUDA Engine)
  *
  * Copyright (c) 2026 KI7MT - Greg Beam
  * License: GPL-3.0-or-later
@@ -60,7 +60,7 @@ void print_header() {
     printf("\n");
     printf("┌─────────────────────────────────────────────────────────────┐\n");
     printf("│  " BOLD "Bulk Embedding Processor" RESET " - Blackwell sm_120              │\n");
-    printf("│  ki7mt-ai-lab-cuda v%-40s│\n", PROJECT_VERSION);
+    printf("│  ionis-cuda v%-47s│\n", PROJECT_VERSION);
     printf("└─────────────────────────────────────────────────────────────┘\n");
     printf("\n");
 }

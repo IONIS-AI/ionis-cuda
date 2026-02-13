@@ -1,5 +1,5 @@
 # =============================================================================
-# ki7mt-ai-lab-cuda - Sovereign CUDA Engine for WSPR Propagation Analysis
+# ionis-cuda - Sovereign CUDA Engine for WSPR Propagation Analysis
 # =============================================================================
 #
 # CMake build configuration for Blackwell GPU (sm_120)
@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 # Project definition with CUDA language
-project(ki7mt-ai-lab-cuda
+project(ionis-cuda
     VERSION 2.3.2
     DESCRIPTION "Sovereign CUDA Engine for WSPR Propagation Signature Analysis"
     LANGUAGES CXX CUDA
@@ -211,7 +211,7 @@ install(TARGETS wspr_signature_engine wspr_cuda_hal signature-engine-test
     RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY include/ DESTINATION include/ki7mt
+install(DIRECTORY include/ DESTINATION include/ionis
     FILES_MATCHING PATTERN "*.h" PATTERN "*.cuh"
 )
 
@@ -219,7 +219,7 @@ install(DIRECTORY include/ DESTINATION include/ki7mt
 # Summary
 # =============================================================================
 message(STATUS "")
-message(STATUS "=== ki7mt-ai-lab-cuda Configuration ===")
+message(STATUS "=== ionis-cuda Configuration ===")
 message(STATUS "Version:          ${PROJECT_VERSION}")
 message(STATUS "CUDA Arch:        sm_${CMAKE_CUDA_ARCHITECTURES} (Blackwell)")
 message(STATUS "C++ Standard:     C++${CMAKE_CXX_STANDARD}")
