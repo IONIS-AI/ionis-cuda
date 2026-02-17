@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Greg Beam <ki7mt@yahoo.com>
 Build-Depends: debhelper-compat (= 13),
  cuda-nvcc-13-1,
- cuda-cudart-devel-13-1
+ cuda-cudart-dev-13-1
 Standards-Version: 4.6.2
 Homepage: https://github.com/IONIS-AI/ionis-cuda
 Vcs-Git: https://github.com/IONIS-AI/ionis-cuda.git
@@ -26,7 +26,7 @@ Section: libdevel
 Architecture: amd64
 Depends: ${misc:Depends},
  ionis-cuda (= ${binary:Version}),
- cuda-cudart-devel-13-1
+ cuda-cudart-dev-13-1
 Description: IONIS AI CUDA signature engine (development files)
  Headers, static library, and CUDA source files for building against
  the IONIS CUDA signature engine. Required for CGO linking from
