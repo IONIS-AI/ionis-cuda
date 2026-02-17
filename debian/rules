@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+CUDA_PATH ?= /usr/local/cuda-13.1
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) all CUDA_PATH=$(CUDA_PATH) EXTRA_NVCCFLAGS="-allow-unsupported-compiler"
+
+override_dh_auto_install:
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp CUDA_PATH=$(CUDA_PATH) \
+		LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
+		INCDIR=/usr/include/ionis
+
+override_dh_auto_test:
+	@echo "Tests require NVIDIA GPU - skipped during package build"
+
+override_dh_strip:
+	@echo "Skipping strip for CUDA fat binaries"
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(CUDA_PATH)/lib64

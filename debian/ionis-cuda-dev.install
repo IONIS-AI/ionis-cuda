@@ -1,0 +1,4 @@
+usr/lib/*/libionis-cuda.a
+usr/lib/*/libionis-cuda.so
+usr/include/ionis/
+usr/share/ionis-cuda/
