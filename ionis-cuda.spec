@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ionis-cuda
-Version:        3.0.0
+Version:        3.0.2
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for IONIS WSPR processing
 
