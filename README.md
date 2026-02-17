@@ -90,6 +90,7 @@ sudo make install
 | [ionis-core](https://github.com/IONIS-AI/ionis-core) | DDL schemas, SQL scripts |
 | [ionis-apps](https://github.com/IONIS-AI/ionis-apps) | Go data ingesters (WSPR, solar, contest, RBN) |
 | [ionis-training](https://github.com/IONIS-AI/ionis-training) | PyTorch model training |
+| [ionis-validate](https://github.com/IONIS-AI/ionis-validate) | Model validation suite (PyPI) |
 | [ionis-docs](https://github.com/IONIS-AI/ionis-docs) | Documentation site |
 
 ## License
