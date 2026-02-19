@@ -20,7 +20,7 @@
 
 /* Version info (substituted by build) */
 #ifndef VERSION
-#define VERSION "3.0.6"
+#define VERSION "3.2.0"
 #endif
 
 /* ANSI color codes */
