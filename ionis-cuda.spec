@@ -3,7 +3,7 @@
 
 Name:           ionis-cuda
 Version:        4.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Sovereign CUDA HAL for IONIS WSPR processing
 
 License:        GPL-3.0-or-later
@@ -104,6 +104,9 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Wed Feb 25 2026 Greg Beam <ki7mt@yahoo.com> - 4.0.0-2
+- Remove Debian packaging (Launchpad cannot build the full stack)
+
 * Wed Feb 25 2026 Greg Beam <ki7mt@yahoo.com> - 4.0.0-1
 - Align version across all IONIS packages at 4.0.0 (Phase 4.0 release)
 
