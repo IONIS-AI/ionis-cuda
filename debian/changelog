@@ -1,8 +1,0 @@
-ionis-cuda (3.0.0-1) noble; urgency=medium
-
-  * Initial Debian packaging (self-hosted apt repo)
-  * CUDA 13.1 fat binary: sm_80/86/89/100/120
-  * Shared library + headers + static library
-  * Matches RPM ionis-cuda-3.0.0-1
-
- -- Greg Beam <ki7mt@yahoo.com>  Tue, 17 Feb 2026 12:00:00 +0000
