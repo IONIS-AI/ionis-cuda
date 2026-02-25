@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ionis-cuda
-Version:        3.2.0
+Version:        4.0.0
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for IONIS WSPR processing
 
@@ -104,6 +104,9 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Wed Feb 25 2026 Greg Beam <ki7mt@yahoo.com> - 4.0.0-1
+- Align version across all IONIS packages at 4.0.0 (Phase 4.0 release)
+
 * Fri Feb 13 2026 Greg Beam <ki7mt@yahoo.com> - 3.0.0-1
 - Rename package: ki7mt-ai-lab-cuda → ionis-cuda
 - Move to IONIS-AI GitHub org
