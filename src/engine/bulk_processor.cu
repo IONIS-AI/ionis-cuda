@@ -2,7 +2,8 @@
  * bulk_processor.cu - Bulk Embedding Processor for Full Dataset
  *
  * Processes WSPR spots in time-based chunks, computing embeddings on
- * Blackwell GPU and writing to wspr.silver for ML training.
+ * Blackwell GPU. NOTE: wspr.silver was dropped 2026-09-22 and this tool currently
+ * has no destination table -- see README.md and sql/01-model_features.sql.
  *
  * Features:
  *   - Time-based iteration (hourly or daily)

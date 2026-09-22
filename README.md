@@ -8,20 +8,37 @@ CUDA signature embedding engine for the IONIS project.
 
 ## Overview
 
-Generates float4 embeddings from WSPR spot data and solar indices using CUDA kernels on NVIDIA GPUs. The bulk-processor reads from `wspr.bronze` and `solar.bronze` in ClickHouse and writes embeddings to `wspr.silver`.
+Generates float4 embeddings from WSPR spot data and solar indices using CUDA kernels on NVIDIA GPUs.
 
 ```
-Pipeline:  wspr.bronze + solar.bronze  ──▶  bulk-processor (CUDA)  ──▶  wspr.silver
-Output:    4.4B embeddings, 41 GiB
+Pipeline:  wspr.bronze + solar.bronze  ──▶  bulk-processor (CUDA)  ──▶  (destination table)
 Hardware:  RTX PRO 6000 (96 GB VRAM) — single-pass processing
 Wall time: ~45 min on Threadripper 9975WX
 ```
+
+> ### Not currently wired into the IONIS pipeline
+>
+> `bulk-processor` wrote to `wspr.silver`, **which was dropped on 2026-09-22** holding zero
+> rows. It was probably not always empty — a QA rebuild recorded 4.43B rows on 2026-02-07 —
+> but ClickHouse's logs only retain back to 2026-09-06, so when it emptied cannot be
+> established. **That a table could lose four billion rows unnoticed for seven months is the
+> finding.** It could, because nothing read it: this tool is not packaged in any RPM, has no
+> systemd unit, and runs only by hand, while all fourteen gold populate scripts read
+> `wspr.bronze` directly. The medallion chain the docs described — `bronze → silver → gold` —
+> was a design, not the build. The build is `bronze → gold`.
+>
+> **The CUDA engine itself is sound and is kept.** What it lacks is a consumer. Before
+> running it again, decide where its output goes and what reads it; `sql/01-model_features.sql`
+> still carries the original schema for reference, but creates nothing.
+>
+> Current lineage for every table in the lab:
+> [`ionis-core/docs/DATA-DICTIONARY.md`](https://github.com/IONIS-AI/ionis-core/blob/main/docs/DATA-DICTIONARY.md)
 
 ## Components
 
 | Component | Description |
 |-----------|-------------|
-| `bulk-processor` | Main CUDA embedding generator — reads ClickHouse, writes silver table |
+| `bulk-processor` | Main CUDA embedding generator — reads ClickHouse, writes float4 embeddings. **No destination table at present — see above.** |
 | `wspr-cuda-check` | Quick GPU capability check utility |
 | `src/cuda/` | CUDA kernels for embedding computation |
 | `src/engine/` | Processing engine and batch orchestration |

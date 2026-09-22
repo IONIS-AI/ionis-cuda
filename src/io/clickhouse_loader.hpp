@@ -175,7 +175,8 @@ public:
     );
 
     /**
-     * Insert computed embeddings into wspr.silver
+     * Insert computed embeddings into the destination table (historically wspr.silver,
+     * dropped 2026-09-22 -- a destination must be chosen before this is used again)
      *
      * @param batch      Original training batch (for metadata)
      * @param embeddings Computed embeddings from GPU
