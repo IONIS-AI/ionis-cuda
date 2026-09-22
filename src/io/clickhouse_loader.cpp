@@ -380,6 +380,12 @@ size_t ClickHouseLoader::insert_batch(
         block.AppendColumn("embedding", col_embedding);
 
         // Insert the block
+        // wspr.silver was DROPPED on 2026-09-22 (it held zero rows; nothing read it).
+        // This call therefore fails at runtime with "Table wspr.silver does not exist",
+        // which is the correct and loud failure: the engine has no destination until one
+        // is chosen. Left hardcoded on purpose -- silently retargeting it to some other
+        // table would put unconsumed rows somewhere new and repeat the original mistake.
+        // Making the destination configurable is tracked separately.
         impl_->client->Insert("wspr.silver", block);
 
         last_error_.clear();

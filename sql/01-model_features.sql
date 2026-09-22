@@ -1,4 +1,38 @@
 -- =============================================================================
+-- RETIRED 2026-09-22 — REFERENCE SCHEMA ONLY. THIS FILE CREATES NOTHING.
+-- =============================================================================
+--
+-- wspr.silver was dropped. Every statement below is commented out deliberately,
+-- so that running this file is a no-op rather than a resurrection.
+--
+-- WHY THE TABLE WENT. It held zero rows on 2026-09-22.
+--
+-- It was probably not always empty: ionis-docs recorded a clean-slate QA rebuild on
+-- 2026-02-07 producing 4,430,000,000 rows. ClickHouse's part_log and query_log only
+-- retain back to 2026-09-06, so WHEN or HOW it emptied cannot now be established.
+--
+-- That uncertainty is the finding, not a gap in it. A table can lose four billion
+-- rows and go unnoticed for seven months only if nothing reads it -- and nothing did.
+-- bulk-processor, the only writer, is not packaged in an RPM, has no systemd unit,
+-- and runs by hand; on the other side all fourteen gold populate scripts in
+-- ionis-core read wspr.bronze directly. The bronze -> silver -> gold chain in the
+-- documentation was a design. What was built is bronze -> gold.
+--
+-- WHY THIS FILE STILL EXISTS. The embedding layout below is the record of what the
+-- CUDA engine computes, and src/cuda/ still computes it. If the engine is given a
+-- destination again, this is the schema to start from -- with a consumer decided
+-- FIRST. An unconsumed table is how this one stayed empty and unnoticed for months.
+--
+-- Note the column order here differs from the ClickHouse array convention used in
+-- ionis-core: the comments below index the embedding from 0, while the retired
+-- production table indexed from 1 (embedding[4] was quality). Check both before
+-- reusing either.
+--
+-- Current lineage for every table in the lab:
+--   ionis-core/docs/DATA-DICTIONARY.md
+-- =============================================================================
+
+-- =============================================================================
 -- wspr.silver - ML Feature Storage for Propagation Signatures
 -- =============================================================================
 --
@@ -16,57 +50,57 @@
 -- License: GPL-3.0-or-later
 -- =============================================================================
 
-CREATE TABLE IF NOT EXISTS wspr.silver
-(
+-- CREATE TABLE IF NOT EXISTS wspr.silver
+-- (
     -- Temporal key
-    timestamp DateTime CODEC(Delta, ZSTD(1)),
+--     timestamp DateTime CODEC(Delta, ZSTD(1)),
 
     -- Path identification
-    tx_grid FixedString(8) CODEC(ZSTD(1)),
-    rx_grid FixedString(8) CODEC(ZSTD(1)),
+--     tx_grid FixedString(8) CODEC(ZSTD(1)),
+--     rx_grid FixedString(8) CODEC(ZSTD(1)),
 
     -- Frequency (Hz) for band-specific analysis
-    frequency UInt64 CODEC(Delta, ZSTD(1)),
+--     frequency UInt64 CODEC(Delta, ZSTD(1)),
 
     -- Band (ADIF) for partitioning
-    band Int32 CODEC(ZSTD(1)),
+--     band Int32 CODEC(ZSTD(1)),
 
     -- Raw distance (km) for filtering
-    distance UInt32 CODEC(Delta, ZSTD(1)),
+--     distance UInt32 CODEC(Delta, ZSTD(1)),
 
     -- Solar context at time of observation
-    kp_index Float32 CODEC(ZSTD(1)),
-    xray_flux Float32 CODEC(ZSTD(1)),
+--     kp_index Float32 CODEC(ZSTD(1)),
+--     xray_flux Float32 CODEC(ZSTD(1)),
 
     -- GPU-computed embedding vector
     -- [norm_distance, solar_penalty, geo_penalty, quality]
-    embedding Array(Float32) CODEC(ZSTD(1)),
+--     embedding Array(Float32) CODEC(ZSTD(1)),
 
     -- Processing metadata
-    computed_at DateTime DEFAULT now() CODEC(Delta, ZSTD(1))
-)
-ENGINE = MergeTree()
-PARTITION BY toYYYYMM(timestamp)
-ORDER BY (band, timestamp, tx_grid, rx_grid)
-SETTINGS index_granularity = 8192;
+--     computed_at DateTime DEFAULT now() CODEC(Delta, ZSTD(1))
+-- )
+-- ENGINE = MergeTree()
+-- PARTITION BY toYYYYMM(timestamp)
+-- ORDER BY (band, timestamp, tx_grid, rx_grid)
+-- SETTINGS index_granularity = 8192;
 
 -- Materialized view for quality distribution analysis
-CREATE MATERIALIZED VIEW IF NOT EXISTS wspr.v_quality_distribution
-ENGINE = SummingMergeTree()
-PARTITION BY toYYYYMM(timestamp)
-ORDER BY (band, quality_bucket, timestamp)
-AS SELECT
-    toStartOfHour(timestamp) AS timestamp,
-    band,
-    floor(embedding[4] * 10) / 10 AS quality_bucket,
-    count() AS count,
-    avg(distance) AS avg_distance,
-    avg(kp_index) AS avg_kp
-FROM wspr.silver
-GROUP BY timestamp, band, quality_bucket;
+-- CREATE MATERIALIZED VIEW IF NOT EXISTS wspr.v_quality_distribution
+-- ENGINE = SummingMergeTree()
+-- PARTITION BY toYYYYMM(timestamp)
+-- ORDER BY (band, quality_bucket, timestamp)
+-- AS SELECT
+--     toStartOfHour(timestamp) AS timestamp,
+--     band,
+--     floor(embedding[4] * 10) / 10 AS quality_bucket,
+--     count() AS count,
+--     avg(distance) AS avg_distance,
+--     avg(kp_index) AS avg_kp
+-- FROM wspr.silver
+-- GROUP BY timestamp, band, quality_bucket;
 
 -- Index for efficient embedding similarity queries
 -- Note: ClickHouse doesn't have native vector indexes, but we can use
 -- bloom filters for pre-filtering before exact computation
-ALTER TABLE wspr.silver ADD INDEX idx_quality (embedding[4]) TYPE minmax GRANULARITY 4;
-ALTER TABLE wspr.silver ADD INDEX idx_kp (kp_index) TYPE minmax GRANULARITY 4;
+-- ALTER TABLE wspr.silver ADD INDEX idx_quality (embedding[4]) TYPE minmax GRANULARITY 4;
+-- ALTER TABLE wspr.silver ADD INDEX idx_kp (kp_index) TYPE minmax GRANULARITY 4;
