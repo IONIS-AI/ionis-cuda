@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ionis-cuda
-Version:        4.0.1
+Version:        4.0.2
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for IONIS WSPR processing
 
@@ -104,6 +104,18 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Tue Sep 22 2026 Bob <bob@ipa.home.arpa> - 4.0.2-1
+- Ship the corrected README. The doc changes from the wspr.silver retirement
+  (IONIS-AI/ionis-cuda#1) merged without a version bump, so the README installed on
+  every host still advertises a pipeline ending in wspr.silver and a bulk-processor
+  that "writes silver table" -- a table dropped on 2026-09-22 for holding zero rows
+  with nothing reading it. A stale doc describing a database we do not have is the
+  exact defect that audit existed to find; leaving it installed while fixing it in
+  git would have been the same mistake one layer down.
+- No code change. sql/01-model_features.sql is not packaged, so the retired DDL was
+  never on disk via the RPM and there is no footgun to remove -- only the README is
+  shipped, and only the README was wrong.
+
 * Wed Feb 25 2026 Greg Beam <ki7mt@yahoo.com> - 4.0.1-1
 - Documentation update only (no code changes)
 
