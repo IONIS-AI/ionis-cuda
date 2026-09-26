@@ -106,9 +106,9 @@ make install VERSION=%{version} DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %changelog
 * Sat Sep 26 2026 Bob <bob@ipa.home.arpa> - 4.0.3-1
 - The shared library now carries the package version: libionis-cuda.so.4.0.3,
-  soname libionis-cuda.so.4 (was so.3.2.0 / so.3 in the 4.0.2 package, because %build
-  ran make without VERSION= and the Makefile read a stale VERSION file). %build and
-  %install now pass VERSION=%{version}, so the package and the library cannot
+  soname libionis-cuda.so.4 (was so.3.2.0 / so.3 in the 4.0.2 package, because %%build
+  ran make without VERSION= and the Makefile read a stale VERSION file). %%build and
+  %%install now pass VERSION=%%{version}, so the package and the library cannot
   disagree again. Only consumer: wspr-cuda-check, rebuilt and shipped with it.
 * Tue Sep 22 2026 Bob <bob@ipa.home.arpa> - 4.0.2-1
 - Ship the corrected README. The doc changes from the wspr.silver retirement
