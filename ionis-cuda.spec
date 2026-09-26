@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           ionis-cuda
-Version:        4.0.2
+Version:        4.0.3
 Release:        1%{?dist}
 Summary:        Sovereign CUDA HAL for IONIS WSPR processing
 
@@ -63,14 +63,14 @@ export PATH=$CUDA_PATH/bin:$PATH
 
 # Build fat binary (sm_80, sm_86, sm_89, sm_100 + PTX)
 # EXTRA_NVCCFLAGS allows COPR builders to handle GCC version mismatches
-make all CUDA_PATH=$CUDA_PATH EXTRA_NVCCFLAGS="-allow-unsupported-compiler"
+make all VERSION=%{version} CUDA_PATH=$CUDA_PATH EXTRA_NVCCFLAGS="-allow-unsupported-compiler"
 
 %install
 # Set CUDA paths
 export CUDA_PATH=/usr/local/cuda-13.1
 
 # Use Makefile install with DESTDIR
-make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
+make install VERSION=%{version} DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 
 # Modern EL9 standard for ldconfig scriptlets
 %ldconfig_scriptlets
@@ -104,6 +104,12 @@ make install DESTDIR=%{buildroot} CUDA_PATH=$CUDA_PATH
 %attr(755,root,root) %{_datadir}/%{name}/src/*.sh
 
 %changelog
+* Sat Sep 26 2026 Bob <bob@ipa.home.arpa> - 4.0.3-1
+- The shared library now carries the package version: libionis-cuda.so.4.0.3,
+  soname libionis-cuda.so.4 (was so.3.2.0 / so.3 in the 4.0.2 package, because %%build
+  ran make without VERSION= and the Makefile read a stale VERSION file). %%build and
+  %%install now pass VERSION=%%{version}, so the package and the library cannot
+  disagree again. Only consumer: wspr-cuda-check, rebuilt and shipped with it.
 * Tue Sep 22 2026 Bob <bob@ipa.home.arpa> - 4.0.2-1
 - Ship the corrected README. The doc changes from the wspr.silver retirement
   (IONIS-AI/ionis-cuda#1) merged without a version bump, so the README installed on
